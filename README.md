@@ -26,6 +26,7 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 - Activate virtualenv, then install all required modules on your local machine.
 
 ```
+    virtualenv venv
     source ./venv/Scripts/activate
     pip install -r requirements.txt
 ```
