@@ -60,11 +60,15 @@ Files are split into 2 folders, src and venv. **DO NOT ADD OR REMOVE FILES IN TH
 For src:
 
 ```
+    venv (activate when coding)
+      |_ ...
     src
       |_ controller (all logic related code)
       |_ models (data)
       |_ views (analysis)
       |_ misc (misc code)
+    README.md
+    requirements.txt (used to install modules in venv)
 ```
 
 ## Useful Resources
