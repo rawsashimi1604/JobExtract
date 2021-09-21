@@ -23,10 +23,11 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 ```
 
 - Then, [install Git](https://git-scm.com/download/win) on your computer and pull the repo into your local machine.
-- To activate virtualenv to start coding, open your folder on VSCode, go to terminal, and type this:
+- Activate virtualenv, then install all required modules on your local machine.
 
 ```
     source ./venv/Scripts/activate
+    pip install -r requirements.txt
 ```
 
 - From there you should be good to go to start coding!
@@ -59,9 +60,10 @@ For src:
 
 ```
     src
-    |_ controller (all logic related code)
-    |_ models (data)
-    |_ views (analysis)
+      |_ controller (all logic related code)
+      |_ models (data)
+      |_ views (analysis)
+      |_ misc (misc code)
 ```
 
 ## Useful Resources
