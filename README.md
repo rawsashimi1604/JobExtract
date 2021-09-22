@@ -31,6 +31,14 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
     pip install -r requirements.txt
 ```
 
+- Change your git working branch to the production branch by using `git checkout production`, then double check the branch by using `git branch`;
+
+```
+    git branch -a (list all branches)
+    git checkout production
+    git branch
+```
+
 - From there you should be good to go to start coding!
 - After coding finish, deactivate virtualenv
 
