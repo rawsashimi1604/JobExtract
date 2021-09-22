@@ -55,6 +55,13 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
   git push origin production
 ```
 
+- To pull from existing codebase (get our latest updates), this will pull anything that has gone into master into your current production branch.
+
+```
+  git pull
+  git merge origin/master
+```
+
 ## Timeline
 
 - Aim to complete by: **10 Oct**
