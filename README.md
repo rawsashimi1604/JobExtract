@@ -46,6 +46,15 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
     deactivate
 ```
 
+- To add to the codebase use Git! `git add .` adds all changes, `git status` checks status of Git, `git commit -m ...` adds a message to your commit for better referencing, `git push origin production` pushes your code to our production branch!
+
+```
+  git add .
+  git status
+  git commit -m "<enter your message here>"
+  git push origin production
+```
+
 ## Timeline
 
 - Aim to complete by: **10 Oct**
