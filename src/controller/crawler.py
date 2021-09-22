@@ -1,7 +1,11 @@
 from selenium import webdriver
+import selenium
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import ElementNotInteractableException
 import time
+
+from selenium.webdriver.ie.options import ElementScrollBehavior
 
 
 class Crawler:
@@ -41,24 +45,29 @@ class Crawler:
                 None
         '''
         self.buffer(2)
+        body = self.driver.find_element_by_css_selector("body")
         if self.driver.current_url == "https://sg.linkedin.com/jobs":
             # Find the search companies <input> tag
             searchCompaniesInput = self.driver.find_element_by_css_selector(
                 "input[aria-label='Search job titles or companies']")
             searchCompaniesInput.send_keys(jobTitle)
-            self.buffer(0.2)
 
             # Find the location <input> tag
             locationInput = self.driver.find_element_by_css_selector(
                 "input[aria-label='Location']")
             locationInput.clear()
             locationInput.send_keys(location)
-            self.buffer(0.2)
 
-            # Find the Search Jobs <button> tag
-            searchButton = self.driver.find_element_by_css_selector(
-                "button[data-searchbar-type='JOBS']")
-            searchButton.click()
+            # Press DOWN and ENTER Key
+            self.buffer(1)
+            locationInput.send_keys(Keys.DOWN)
+            self.buffer(1)
+            locationInput.send_keys(Keys.ENTER)
+
+            # # Find the Search Jobs <button> tag
+            # searchButton = self.driver.find_element_by_css_selector(
+            #     "button[data-searchbar-type='JOBS']")
+            # searchButton.click()
 
     def selectPositionLevel(self, position: str):
         '''
@@ -67,18 +76,18 @@ class Crawler:
                 "position" : str => Job Position Level
                 Available Parameters:
                     "Internship",
-                    "Entry level",
+                    "Entry",
                     "Associate",
-                    "Mid-Senior level",
+                    "Mid-Senior",
                     "Director"
             Returns:
                 None
         '''
         positionArray = [
             "Internship",
-            "Entry level",
+            "Entry",
             "Associate",
-            "Mid-Senior level",
+            "Mid-Senior",
             "Director"
         ]
 
@@ -112,10 +121,59 @@ class Crawler:
         self.buffer(0.5)
         doneButton.click()
 
+    def getJobInfo(self):
+        body = self.driver.find_element_by_css_selector("body")
+        unorderedList = self.driver.find_element_by_css_selector(
+            "ul[class='jobs-search__results-list']")
+
+        # Moves the browser to location of first <li> tag
+        for i in range(6):
+            body.send_keys(Keys.DOWN)
+
+        # Finds the first <li> ta
+        currentLi = unorderedList.find_element_by_css_selector("li")
+        currentLi.click()
+        self.buffer(2)
+
+        # SCRAPE INFO
+        for i in range(1000):
+            self.moveToNextJob()
+            currentLi = currentLi.find_element_by_xpath(
+                "following-sibling::*")
+            currentLi.click()
+            self.buffer(1)
+            currentLi.click()
+            self.buffer(1)
+
+            try:
+                seeMoreButton = unorderedList.find_element_by_xpath(
+                    "..").find_element_by_css_selector("button[aria-label='Load more results']")
+                seeMoreButton.click()
+            except ElementNotInteractableException:
+                pass
+
+    def selectJob(self):
+        pass
+
+    def moveToNextJob(self):
+        '''
+            Instructs crawler to move browser position to next job
+            Parameters:
+                None
+            Returns:
+                None
+        '''
+        body = self.driver.find_element_by_css_selector("body")
+
+        # Press the Down Button 4 times
+        for i in range(4):
+            body.send_keys(Keys.DOWN)
+
     def exitCrawler(self):
+        self.buffer(2)
         self.driver.close()
 
 
 myCrawler = Crawler()
-myCrawler.searchJobs("Software Engineer", "Singapore")
-myCrawler.selectPositionLevel("Internship")
+myCrawler.searchJobs("Sales", "Singapore")
+myCrawler.getJobInfo()
