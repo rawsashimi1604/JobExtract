@@ -17,7 +17,7 @@ class Crawler:
     @staticmethod
     def buffer(seconds: int):
         '''
-            Makes Crawler sleep for x seconds
+            Instructs Crawler sleep for x seconds
             Parameters:
                 "seconds" : int => Amount in seconds to sleep.
             Returns:
@@ -44,7 +44,10 @@ class Crawler:
             Returns:
                 None
         '''
+
         self.buffer(2)
+
+        # Finds the <body> tag
         body = self.driver.find_element_by_css_selector("body")
         if self.driver.current_url == "https://sg.linkedin.com/jobs":
             # Find the search companies <input> tag
@@ -63,11 +66,6 @@ class Crawler:
             locationInput.send_keys(Keys.DOWN)
             self.buffer(1)
             locationInput.send_keys(Keys.ENTER)
-
-            # # Find the Search Jobs <button> tag
-            # searchButton = self.driver.find_element_by_css_selector(
-            #     "button[data-searchbar-type='JOBS']")
-            # searchButton.click()
 
     def selectPositionLevel(self, position: str):
         '''
@@ -97,13 +95,13 @@ class Crawler:
             "button[aria-label='Experience Level filter. Clicking this button displays all Experience Level filter options.']")
         expLevelButton.click()
 
-        # Find the Position Level Checkboxes
+        # Find the Position Level <label>, and their parent <div>
         parentDiv = expLevelButton.find_element_by_xpath('..')
         fieldSetDiv = parentDiv.find_element_by_css_selector(
             "div > fieldset > div")
         positionDivs = fieldSetDiv.find_elements_by_css_selector("div")
 
-        # Click on the Job Position Label
+        # Click on the Job Position <label>
         for pos in positionDivs:
             positionLabel = pos.find_element_by_css_selector(
                 "label")
@@ -115,13 +113,21 @@ class Crawler:
                 print("clicked")
                 break
 
-        # Click on the Done Button
+        # Click on the Done <button>
         doneButton = parentDiv.find_element_by_css_selector(
             "div > button[aria-label='Apply filters']")
         self.buffer(0.5)
         doneButton.click()
 
     def getJobInfo(self):
+        '''
+            Instructs crawler to scrape job description data
+            Parameters:
+                None
+            Returns:
+                None
+        '''
+        # Finds the <body> tag and <ul> tag for scraping.
         body = self.driver.find_element_by_css_selector("body")
         unorderedList = self.driver.find_element_by_css_selector(
             "ul[class='jobs-search__results-list']")
@@ -130,14 +136,17 @@ class Crawler:
         for i in range(6):
             body.send_keys(Keys.DOWN)
 
-        # Finds the first <li> ta
+        # Finds the first <li> tag
         currentLi = unorderedList.find_element_by_css_selector("li")
         currentLi.click()
         self.buffer(2)
 
         # SCRAPE INFO
         for i in range(1000):
+            # Moves browser in position for scraping
             self.moveToNextJob()
+
+            # Finds the next <li> tag
             currentLi = currentLi.find_element_by_xpath(
                 "following-sibling::*")
             currentLi.click()
@@ -145,6 +154,7 @@ class Crawler:
             currentLi.click()
             self.buffer(1)
 
+            # Finds the see more <button>, then clicks on it. Allows crawler to scrape more job descriptions.
             try:
                 seeMoreButton = unorderedList.find_element_by_xpath(
                     "..").find_element_by_css_selector("button[aria-label='Load more results']")
@@ -170,6 +180,13 @@ class Crawler:
             body.send_keys(Keys.DOWN)
 
     def exitCrawler(self):
+        '''
+            Instructs crawler to exit and close browser.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
         self.buffer(2)
         self.driver.close()
 
