@@ -1,17 +1,20 @@
 from selenium import webdriver
-import selenium
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.ie.options import ElementScrollBehavior
 from selenium.common.exceptions import ElementNotInteractableException
 import time
-
-from selenium.webdriver.ie.options import ElementScrollBehavior
-
-# testest
 
 
 class Crawler:
     def __init__(self):
+        '''
+            Initialize Crawler Class.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
         self.driver = webdriver.Chrome()
         self.driver.get("https://sg.linkedin.com/jobs")
         self.driver.maximize_window()
@@ -156,6 +159,9 @@ class Crawler:
             currentLi.click()
             self.buffer(1)
 
+            # Scrape some data
+            # ....................
+
             # Finds the see more <button>, then clicks on it. Allows crawler to scrape more job descriptions.
             try:
                 seeMoreButton = unorderedList.find_element_by_xpath(
@@ -193,6 +199,7 @@ class Crawler:
         self.driver.close()
 
 
-myCrawler = Crawler()
-myCrawler.searchJobs("Sales", "Singapore")
-myCrawler.getJobInfo()
+if __name__ == "__main__":
+    myCrawler = Crawler()
+    myCrawler.searchJobs("Sales", "Singapore")
+    myCrawler.getJobInfo()
