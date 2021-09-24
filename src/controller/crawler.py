@@ -7,7 +7,9 @@ import time
 
 from selenium.webdriver.ie.options import ElementScrollBehavior
 
-#testest
+# testest
+
+
 class Crawler:
     def __init__(self):
         self.driver = webdriver.Chrome()

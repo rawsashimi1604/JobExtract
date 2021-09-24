@@ -27,8 +27,16 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 
 ```
     virtualenv venv
-    source ./venv/Scripts/activate
+    ./venv/Scripts/activate (Windows) or source ./venv/Scripts/activate (Linux or Mac)
     pip install -r requirements.txt
+```
+
+- Pull from this repository using `git`, then change working branch to production branch
+
+```
+  git clone https://github.com/rawsashimi1604/1002_LinkedIn.git
+  git branch -f production origin/production
+  git checkout production
 ```
 
 - Change your git working branch to the production branch by using `git checkout production`, then double check the branch by using `git branch`;
@@ -55,7 +63,7 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
   git push origin production
 ```
 
-- To pull from existing codebase (get our latest updates), this will pull anything that has gone into master into your current production branch.
+- To pull from existing codebase (get our latest updates), this will pull anything from master into your current production branch.
 
 ```
   git pull
