@@ -177,7 +177,6 @@ class Crawler:
             if position == positionLabelText:
                 self.buffer(0.5)
                 positionLabel.click()
-                print("clicked")
                 break
 
         # Click on the Done <button>
@@ -298,7 +297,6 @@ class Crawler:
         jobFunction = self.scrapeJobFunction(contentDiv)
         industries = self.scrapeIndustries(contentDiv)
 
-        print(description)
         dataDictionary = {
             "jobTitle": jobTitle,
             "companyName": companyName,
@@ -359,7 +357,14 @@ class Crawler:
         try:
             datePosted = currentDiv.find_element_by_css_selector(
                 "span[class='posted-time-ago__text topcard__flavor--metadata']").text
-            return datePosted.strip().replace("\n", " ")
+            datePosted = datePosted.strip().replace("\n", " ")
+
+            if not datePosted:
+                datePosted = currentDiv.find_element_by_css_selector(
+                    "span[class='posted-time-ago__text posted-time-ago__text--new topcard__flavor--metadata']").text
+                return datePosted.strip().replace("\n", " ")
+
+            return datePosted
 
         except NoSuchElementException:
             return ""
@@ -368,10 +373,17 @@ class Crawler:
         try:
             applicantsStatus = currentDiv.find_element_by_css_selector(
                 "figcaption[class='num-applicants__caption']").text
-            return applicantsStatus.strip().replace("\n", " ")
+            applicantsStatus = applicantsStatus.strip().replace("\n", " ")
+
+            return applicantsStatus
 
         except NoSuchElementException:
-            return ""
+            try:
+                applicantsStatus = self.driver.find_element_by_css_selector(
+                    "span[class='num-applicants__caption topcard__flavor--metadata topcard__flavor--bullet']").get_attribute('innerHTML')
+                return applicantsStatus.strip().replace("\n", " ")
+            except NoSuchElementException:
+                return ""
 
     def scrapeDescription(self, currentDiv: WebElement):
         try:
@@ -449,4 +461,5 @@ class Crawler:
 if __name__ == "__main__":
     myCrawler = Crawler()
     myCrawler.searchJobs("Sales", "Singapore")
-    myCrawler.getJobInfo(5)
+    myCrawler.selectPositionLevel("Entry")
+    myCrawler.getJobInfo(20)
