@@ -23,11 +23,12 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 ```
 
 - Then, [install Git](https://git-scm.com/download/win) on your computer and pull the repo into your local machine.
-- Activate virtualenv, then install all required modules on your local machine.
+- Activate virtualenv, then install all required modules on your local machine. Use command prompt instead of Windows PowerShell!
 
 ```
     virtualenv venv
-    ./venv/Scripts/activate (Windows) or source ./venv/Scripts/activate (Linux or Mac)
+    cd ./venv/Scripts
+    activate
     pip install -r requirements.txt
 ```
 
@@ -67,7 +68,7 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 
 ```
   git pull
-  git merge origin/master
+  git merge origin/production
 ```
 
 ## Timeline
