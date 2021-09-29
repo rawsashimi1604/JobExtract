@@ -8,6 +8,7 @@ from selenium.common.exceptions import ElementNotInteractableException, NoSuchEl
 from selenium.webdriver.remote.webelement import WebElement
 import time
 from datetime import datetime
+from pathlib import Path
 import csv
 import sys
 
@@ -24,6 +25,10 @@ class Crawler:
         self.driver = webdriver.Chrome()
         self.driver.get("https://sg.linkedin.com/jobs")
         self.driver.maximize_window()
+
+        self.positionLevel = "All"
+        self.location = "Singapore"
+        self.jobTitle = "Sales"
 
     @staticmethod
     def buffer(seconds: int):
@@ -49,6 +54,13 @@ class Crawler:
         datetime_string = now.strftime("%Y_%m_%d_%H_%M")
 
         return datetime_string
+
+    def getFileName(self):
+        return rf"../models/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
+
+    def makeFileDirectory(self):
+        path = Path(f"../models/rawData/{self.location}/{self.positionLevel}/")
+        path.mkdir(parents=True, exist_ok=True)
 
     def navigate(self, location: str):
         '''
@@ -134,6 +146,9 @@ class Crawler:
             self.buffer(1)
             locationInput.send_keys(Keys.ENTER)
 
+        self.jobTitle = jobTitle
+        self.location = location
+
     def selectPositionLevel(self, position: str):
         '''
             Instructs crawler to select position level
@@ -149,6 +164,7 @@ class Crawler:
                 None
         '''
         positionArray = [
+            "All",
             "Internship",
             "Entry",
             "Associate",
@@ -156,34 +172,38 @@ class Crawler:
             "Director"
         ]
 
-        # Find the Experience Level <button> tag
-        self.buffer(2)
-        expLevelButton = self.driver.find_element_by_css_selector(
-            "button[aria-label='Experience Level filter. Clicking this button displays all Experience Level filter options.']")
-        expLevelButton.click()
+        if position != "All":
+            # Find the Experience Level <button> tag
+            self.buffer(2)
+            expLevelButton = self.driver.find_element_by_css_selector(
+                "button[aria-label='Experience Level filter. Clicking this button displays all Experience Level filter options.']")
+            expLevelButton.click()
 
-        # Find the Position Level <label>, and their parent <div>
-        parentDiv = expLevelButton.find_element_by_xpath('..')
-        fieldSetDiv = parentDiv.find_element_by_css_selector(
-            "div > fieldset > div")
-        positionDivs = fieldSetDiv.find_elements_by_css_selector("div")
+            # Find the Position Level <label>, and their parent <div>
+            parentDiv = expLevelButton.find_element_by_xpath('..')
+            fieldSetDiv = parentDiv.find_element_by_css_selector(
+                "div > fieldset > div")
+            positionDivs = fieldSetDiv.find_elements_by_css_selector("div")
 
-        # Click on the Job Position <label>
-        for pos in positionDivs:
-            positionLabel = pos.find_element_by_css_selector(
-                "label")
-            positionLabelText = positionLabel.text.split(" ")[0]
-            # positionCheckBox = pos.find_element_by_css_selector("input")
-            if position == positionLabelText:
-                self.buffer(0.5)
-                positionLabel.click()
-                break
+            # Click on the Job Position <label>
+            for pos in positionDivs:
+                positionLabel = pos.find_element_by_css_selector(
+                    "label")
+                positionLabelText = positionLabel.text.split(" ")[0]
+                # positionCheckBox = pos.find_element_by_css_selector("input")
+                if position == positionLabelText:
+                    self.buffer(0.5)
+                    positionLabel.click()
+                    break
 
-        # Click on the Done <button>
-        doneButton = parentDiv.find_element_by_css_selector(
-            "div > button[aria-label='Apply filters']")
-        self.buffer(0.5)
-        doneButton.click()
+            # Click on the Done <button>
+            doneButton = parentDiv.find_element_by_css_selector(
+                "div > button[aria-label='Apply filters']")
+            self.buffer(0.5)
+            doneButton.click()
+
+            # Set global instance var
+            self.positionLevel = position
 
     def getJobInfo(self, jobCount: int):
         '''
@@ -194,8 +214,12 @@ class Crawler:
                 None
         '''
 
+        # Create File Directory, Create CSV file
+        self.makeFileDirectory()
+        fileName = self.getFileName()
+
         # Creates CSV File for storing data
-        with open(f"..\models\data\{self.dateTime()}_dataFile.csv", "w", encoding="utf-8", newline='') as csvFile:
+        with open(fileName, "w", encoding="utf-8", newline='') as csvFile:
 
             # Initialize CSV DictWriter
             csvColumns = ['jobTitle', 'companyName', 'location', 'datePosted', 'appStatus',
@@ -461,5 +485,5 @@ class Crawler:
 if __name__ == "__main__":
     myCrawler = Crawler()
     myCrawler.searchJobs("Sales", "Singapore")
-    myCrawler.selectPositionLevel("Entry")
+    myCrawler.selectPositionLevel("All")
     myCrawler.getJobInfo(20)
