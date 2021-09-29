@@ -1,40 +1,82 @@
-from nltk import data
-from nltk.util import pr
+import nltk
 import pandas as pd
+from datetime import datetime
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from pandas.core.frame import DataFrame
 from nltk.stem.snowball import SnowballStemmer
-#all user to run and download nltk by running the line below
-#nltk.download()
-#i tried using in function but no idea how (self) and ___init__ works
-df = pd.read_csv("../models/data/2021_09_25_13_38_dataFile.csv")
-#declare the language of stopwords to be removed in a set
-stop_words = set(stopwords.words("english"))
-print(stop_words)
-#declare the language of stem to be used
-stem_words = SnowballStemmer("english")
-filtered_words =[]
-
-#stemming the words before stop words removal, snowball stemming will automatically convert to lower case to remove 'The'
-for i in range(0,len(df)):
-    #stemming each data on the description using for loops
-    stem_the_desc = stem_words.stem(df.loc[i][5])
-    #update stem data back to the dataframe
-    df.loc[i][5] = stem_the_desc
-    #pull data from csv 'description', tokenize it to be a list with the value of each word
-    list_of_desc = word_tokenize(df.loc[i][5])
-    for w in list_of_desc:
-        #for words that are not in the default stopwords will be appended into a new list
-        if w not in stop_words:
-            filtered_words.append(w)
-    #appended words are in list so we joined it and convert it to str        
-    filtered_data_to_go_back_into_df = ", ".join(map(str, filtered_words)).replace(",","")
-    #update the column with the new filtered string
-    df.loc[i][5] = filtered_data_to_go_back_into_df
-    df.to_csv("../models/data/2021_09_25_13_38_dataFile.csv", index=False)
-    #to display changes made in csv only for first data since i make a break, u can remove it for now we need to use function so dun remove it yet
-    print(df.loc[0][5])
-    break
+from pathlib import Path
 
 
+class Cleaner:
+    def __init__(self):
+        self.stop_words = set(stopwords.words("english"))
+        self.stem_words = SnowballStemmer("english")
+
+    @staticmethod
+    def downloadNLTK():
+        # Run this function to download all NLTK libraries before using Cleaner
+        nltk.download()
+
+    def openData(self, filePath):
+        # returns raw data dataframe for cleaning
+        return pd.read_csv(filePath)
+
+    def setCleanedDataFileDirectory(self, filePath):
+        # create directory for cleaned data files
+        return filePath.replace("rawData", "cleanedData")
+
+    def makeCleanedDataFileDirectory(self, cleanDataFilePath):
+        # create directory for cleaned data files, returns new directory and file name
+        directoryPath = cleanDataFilePath.replace(
+            "rawData", "cleanedData").split("/")[:-1]
+        newPath = "/".join(directoryPath)
+
+        path = Path(newPath)
+        path.mkdir(parents=True, exist_ok=True)
+
+        oldFileName = cleanDataFilePath.split("/")[-1]
+
+        return f"{newPath}/{oldFileName}"
+
+    def saveCleanedData(self, cleanedDataFrame, prevFilePath):
+        filePath = self.makeCleanedDataFileDirectory(prevFilePath)
+        # save the cleaned dataframe
+        cleanedDataFrame.to_csv(filePath, index=False)
+
+    def cleanFile(self, inputDataframe):
+        # clean the dataframe
+        df = inputDataframe
+        df_len = len(df.index)
+        for i in range(df_len):
+            currDescription = df["description"][i]
+            newDescription = self.cleanDescription(currDescription)
+            df["description"][i] = newDescription
+
+        return df
+
+    def cleanDescription(self, descriptionString):
+        # clean the description
+        filtered_words = []
+
+        stem_the_desc = self.stem_words.stem(descriptionString)
+        descriptionString = stem_the_desc
+        list_of_desc = word_tokenize(descriptionString)
+
+        for w in list_of_desc:
+            if w.isalnum():
+                if w not in self.stop_words:
+                    filtered_words.append(w)
+
+        filtered_data_to_go_back_into_df = " ".join(
+            map(str, filtered_words)).replace(",", "")
+
+        descriptionString = filtered_data_to_go_back_into_df
+        return descriptionString
+
+
+if __name__ == "__main__":
+    myCleaner = Cleaner()
+    myDataFile = "../models/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+    myData = myCleaner.openData(myDataFile)
+    myCleanedData = myCleaner.cleanFile(myData)
+    myCleaner.saveCleanedData(myCleanedData, myDataFile)
