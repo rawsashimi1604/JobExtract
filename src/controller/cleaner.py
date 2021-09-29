@@ -11,6 +11,7 @@ from nltk.stem.snowball import SnowballStemmer
 df = pd.read_csv("../models/data/2021_09_25_13_38_dataFile.csv")
 #declare the language of stopwords to be removed in a set
 stop_words = set(stopwords.words("english"))
+print(stop_words)
 #declare the language of stem to be used
 stem_words = SnowballStemmer("english")
 filtered_words =[]
@@ -21,9 +22,6 @@ for i in range(0,len(df)):
     stem_the_desc = stem_words.stem(df.loc[i][5])
     #update stem data back to the dataframe
     df.loc[i][5] = stem_the_desc
-    #write the updated stem into the csv file
-    df.to_csv("../models/data/2021_09_25_13_38_dataFile.csv", index=False)
-    print(df.loc[0][5])
     #pull data from csv 'description', tokenize it to be a list with the value of each word
     list_of_desc = word_tokenize(df.loc[i][5])
     for w in list_of_desc:
