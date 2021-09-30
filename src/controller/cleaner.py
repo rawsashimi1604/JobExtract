@@ -1,10 +1,15 @@
 import nltk
+import os
+from nltk.util import pr
 import pandas as pd
+import langdetect
+from langdetect import detect
 from datetime import datetime
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 from pathlib import Path
+
 
 
 class Cleaner:
@@ -30,7 +35,7 @@ class Cleaner:
         directoryPath = cleanDataFilePath.replace(
             "rawData", "cleanedData").split("/")[:-1]
         newPath = "/".join(directoryPath)
-
+        
         path = Path(newPath)
         path.mkdir(parents=True, exist_ok=True)
 
@@ -50,7 +55,10 @@ class Cleaner:
         for i in range(df_len):
             currDescription = df["description"][i]
             newDescription = self.cleanDescription(currDescription)
-            df["description"][i] = newDescription
+            if self.languagedetector(newDescription) != "en":
+                df.drop(i, axis=0 , inplace=True)
+            else:
+                df["description"][i] = newDescription
 
         return df
 
@@ -73,10 +81,13 @@ class Cleaner:
         descriptionString = filtered_data_to_go_back_into_df
         return descriptionString
 
+    def languagedetector(self, detectlanguage):
+        english_or_not = detect(detectlanguage)
+        return english_or_not
 
 if __name__ == "__main__":
-    myCleaner = Cleaner()
-    myDataFile = "../models/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
-    myData = myCleaner.openData(myDataFile)
-    myCleanedData = myCleaner.cleanFile(myData)
-    myCleaner.saveCleanedData(myCleanedData, myDataFile)
+     myCleaner = Cleaner()
+     myDataFile = r"../models/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+     myData = myCleaner.openData(myDataFile)
+     myCleanedData = myCleaner.cleanFile(myData)
+     myCleaner.saveCleanedData(myCleanedData, myDataFile)
