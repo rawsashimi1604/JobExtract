@@ -56,10 +56,10 @@ class Crawler:
         return datetime_string
 
     def getFileName(self):
-        return rf"../models/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
+        return rf"../data/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
 
     def makeFileDirectory(self):
-        path = Path(f"../models/rawData/{self.location}/{self.positionLevel}/")
+        path = Path(f"../data/rawData/{self.location}/{self.positionLevel}/")
         path.mkdir(parents=True, exist_ok=True)
 
     def navigate(self, location: str):

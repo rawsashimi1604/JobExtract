@@ -1,13 +1,14 @@
+from os import stat
 import nltk
 from nltk.util import pr
 import pandas as pd
-import langdetect
 from langdetect import detect
 from datetime import datetime
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 from pathlib import Path
+from jobs import JobsModel
 
 
 class Cleaner:
@@ -46,17 +47,47 @@ class Cleaner:
         # save the cleaned dataframe
         cleanedDataFrame.to_csv(filePath, index=False)
 
+    @staticmethod
+    def saveJobObject(jobObject, dataframe, index):
+        '''
+            Updates the Job Object, saves to dataframe index.
+        '''
+        jobObject.updateValues()
+        for i in range(len(jobObject.parameters)):
+            dataframe[jobObject.parameters[i]
+                      ][index] = jobObject.objectValues[i]
+            print(jobObject)
+
     def cleanFile(self, inputDataframe):
         # clean the dataframe
         df = inputDataframe
         df_len = len(df.index)
         for i in range(df_len):
-            currDescription = df["description"][i]
+            # Initalize Job Object
+            jobObject = JobsModel(
+                df["jobTitle"][i],
+                df["companyName"][i],
+                df["location"][i],
+                df["datePosted"][i],
+                df["appStatus"][i],
+                df["description"][i],
+                df["seniorityLevel"][i],
+                df["employmentType"][i],
+                df["jobFunction"][i],
+                df["industries"][i]
+            )
+
+            currDescription = jobObject.description
             newDescription = self.cleanDescription(currDescription)
+
+            # If current language is not english, drop it from dataframe. Loop until found an english job description.
             if self.languageDetect(newDescription) != "en":
                 df.drop(i, axis=0, inplace=True)
+
             else:
-                df["description"][i] = newDescription
+                # Set cleaned description if current language is english.
+                jobObject.description = newDescription
+                self.saveJobObject(jobObject, df, i)
 
         return df
 
@@ -86,7 +117,7 @@ class Cleaner:
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = r"../models/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+    myDataFile = r"../data/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
     myData = myCleaner.openData(myDataFile)
     myCleanedData = myCleaner.cleanFile(myData)
     myCleaner.saveCleanedData(myCleanedData, myDataFile)
