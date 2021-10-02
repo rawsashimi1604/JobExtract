@@ -40,20 +40,7 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
   git checkout production
 ```
 
-- Change your git working branch to the production branch by using `git checkout production`, then double check the branch by using `git branch`;
-
-```
-    git branch -a (list all branches)
-    git checkout production
-    git branch
-```
-
 - From there you should be good to go to start coding!
-- After coding finish, deactivate virtualenv
-
-```
-    deactivate
-```
 
 - To add to the codebase use Git! `git add .` adds all changes, `git status` checks status of Git, `git commit -m ...` adds a message to your commit for better referencing, `git push origin production` pushes your code to our production branch!
 
@@ -75,8 +62,8 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 
 - Aim to complete by: **10 Oct**
 - Components:
-  - **Data Crawling** - 27 Sept
-    - Selenium
+  - ~~**Data Crawling** - 27 Sept~~
+    - ~~Selenium~~
   - **Data Cleaning** - 6 Oct
     - Text Mining
     - TextBlob (Detecting English Job Descriptions)
@@ -90,7 +77,6 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 ## Structure
 
 Files are split into 2 folders, src and venv. **DO NOT ADD OR REMOVE FILES IN THE VENV FOLDER!**
-For src:
 
 ```
     venv (activate when coding)
@@ -98,6 +84,10 @@ For src:
     src
       |_ controller (all logic related code)
       |_ models (data)
+          |_ cleanedData
+              |_ (cleaned data files...)
+          |_ rawData
+              |_ (raw data files...)
       |_ views (analysis)
       |_ misc (misc code)
     README.md
