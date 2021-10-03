@@ -59,12 +59,13 @@ class Cleaner:
         for i in range(len(jobObject.parameters)):
             dataframe[jobObject.parameters[i]
                       ][index] = jobObject.objectValues[i]
-            print(jobObject)
 
     def cleanFile(self, inputDataframe):
         # clean the dataframe
         df = inputDataframe
         df_len = len(df.index)
+
+        # Clean each row, update jobObject, then set jobObject values to csv
         for i in range(df_len):
             # Initalize Job Object
             jobObject = JobsModel(
@@ -90,10 +91,15 @@ class Cleaner:
             else:
                 # Set cleaned description if current language is english.
                 jobObject.description = newDescription
+
+                # Get new date if date exists, set cleaned date if date exists.
+                crawlDate = self.getCrawlDate(df)
+                cleanedDate = self.getPostedDate(
+                    crawlDate, jobObject.datePosted)
+                jobObject.datePosted = cleanedDate
+
+                # Save new object to dataframe
                 self.saveJobObject(jobObject, df, i)
-            
-        crawl_date = self.getCrawlDate(df)
-        self.cleanPostedDate(df,crawl_date)
 
         return df
 
@@ -120,32 +126,40 @@ class Cleaner:
         english_or_not = detect(detectlanguage)
         return english_or_not
 
-    def getCrawlDate(self,df):
-        filename = re.search('([^/]*)$',df.attrs['filename']).group()
-        return re.search('^\d{4}_\d{2}_\d{2}',filename).group()
+    def getCrawlDate(self, dataframe):
+        '''
+            Get date from CSV filename
+        '''
+        filename = re.search('([^/]*)$', dataframe.attrs['filename']).group()
+        return re.search('^\d{4}_\d{2}_\d{2}', filename).group()
 
-    def cleanPostedDate(self, df, date):
-        posted_timeframe = df['datePosted']
-        posted_datelist = []
-        crawl_date = datetime.strptime(date, "%Y_%m_%d")
-        for item in posted_timeframe:
-            posted_date = ""
-            if not pd.isna(item):
-                if re.search('day', item):
-                    posted_date = crawl_date-pd.DateOffset(days=int(item[0]))
-                elif re.search('week', item):
-                    posted_date = crawl_date-pd.DateOffset(weeks=int(item[0]))
-                elif re.search('month',item): 
-                    posted_date = crawl_date-pd.DateOffset(months=int(item[0]))
-                elif re.search('year',item):
-                    posted_date = crawl_date-pd.DateOffset(years=int(item[0]))
-            posted_datelist.append(str(posted_date)[0:10])
-        df['datePosted'] = posted_datelist
+    def getPostedDate(self, filenameDate, postedDate):
+        ''' 
+            Get date of job posting using filename and raw posted date
+        '''
+        crawl_date = datetime.strptime(filenameDate, "%Y_%m_%d")
+        posted_date = ""
+        if not pd.isna(postedDate):
+            if re.search('day', postedDate):
+                posted_date = crawl_date-pd.DateOffset(days=int(postedDate[0]))
+            elif re.search('week', postedDate):
+                posted_date = crawl_date - \
+                    pd.DateOffset(weeks=int(postedDate[0]))
+            elif re.search('month', postedDate):
+                posted_date = crawl_date - \
+                    pd.DateOffset(months=int(postedDate[0]))
+            elif re.search('year', postedDate):
+                posted_date = crawl_date - \
+                    pd.DateOffset(years=int(postedDate[0]))
+
+        return str(posted_date)[0:10]
+
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
     myDataFile = r"../data/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
     myData = myCleaner.openData(myDataFile)
-    myData.attrs['filename']= myDataFile # Set the 'filename' attribute to be the filepath to extract crawl date later
+    # Set the 'filename' attribute to be the filepath to extract crawl date later
+    myData.attrs['filename'] = myDataFile
     myCleanedData = myCleaner.cleanFile(myData)
     myCleaner.saveCleanedData(myCleanedData, myDataFile)
