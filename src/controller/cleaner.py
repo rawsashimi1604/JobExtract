@@ -1,5 +1,6 @@
 from os import stat
 import nltk
+from nltk.grammar import cfg_demo
 from nltk.util import pr
 import pandas as pd
 from langdetect import detect
@@ -9,6 +10,8 @@ from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 from pathlib import Path
 from jobs import JobsModel
+import re
+from datetime import datetime
 
 
 class Cleaner:
@@ -88,6 +91,9 @@ class Cleaner:
                 # Set cleaned description if current language is english.
                 jobObject.description = newDescription
                 self.saveJobObject(jobObject, df, i)
+            
+        crawl_date = self.getCrawlDate(df)
+        self.cleanPostedDate(df,crawl_date)
 
         return df
 
@@ -114,10 +120,32 @@ class Cleaner:
         english_or_not = detect(detectlanguage)
         return english_or_not
 
+    def getCrawlDate(self,df):
+        filename = re.search('([^/]*)$',df.attrs['filename']).group()
+        return re.search('^\d{4}_\d{2}_\d{2}',filename).group()
+
+    def cleanPostedDate(self, df, date):
+        posted_timeframe = df['datePosted']
+        posted_datelist = []
+        crawl_date = datetime.strptime(date, "%Y_%m_%d")
+        for item in posted_timeframe:
+            posted_date = ""
+            if not pd.isna(item):
+                if re.search('day', item):
+                    posted_date = crawl_date-pd.DateOffset(days=int(item[0]))
+                elif re.search('week', item):
+                    posted_date = crawl_date-pd.DateOffset(weeks=int(item[0]))
+                elif re.search('month',item): 
+                    posted_date = crawl_date-pd.DateOffset(months=int(item[0]))
+                elif re.search('year',item):
+                    posted_date = crawl_date-pd.DateOffset(years=int(item[0]))
+            posted_datelist.append(str(posted_date)[0:10])
+        df['datePosted'] = posted_datelist
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
     myDataFile = r"../data/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
     myData = myCleaner.openData(myDataFile)
+    myData.attrs['filename']= myDataFile # Set the 'filename' attribute to be the filepath to extract crawl date later
     myCleanedData = myCleaner.cleanFile(myData)
     myCleaner.saveCleanedData(myCleanedData, myDataFile)
