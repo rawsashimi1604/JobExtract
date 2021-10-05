@@ -38,7 +38,7 @@ class Crawler:
             Returns:
                 None
         '''
-        time.sleep(uniform(minseconds,maxseconds))
+        time.sleep(uniform(minseconds, maxseconds))
 
     @staticmethod
     def dateTime():
@@ -96,7 +96,7 @@ class Crawler:
         '''
         body = self.driver.find_element_by_css_selector("body")
 
-        self.buffer(0.3,0.7)
+        self.buffer(0.3, 0.7)
         # Press the Up button 4 times
         for i in range(4):
             body.send_keys(Keys.UP)
@@ -104,14 +104,14 @@ class Crawler:
         # Click the previous sibling element
         previousSibling.click()
 
-        self.buffer(0.3,0.7)
+        self.buffer(0.3, 0.7)
         # Press the Down button 4 times
         for i in range(4):
             body.send_keys(Keys.DOWN)
 
         # Click the current sibling element
         currentSibling.click()
-        self.buffer(0.3,0.7)
+        self.buffer(0.3, 0.7)
 
     def searchJobs(self, jobTitle: str, location: str):
         '''
@@ -123,7 +123,7 @@ class Crawler:
                 None
         '''
 
-        self.buffer(1.5,2.5)
+        self.buffer(1.5, 2.5)
 
         # Finds the <body> tag
         body = self.driver.find_element_by_css_selector("body")
@@ -140,9 +140,9 @@ class Crawler:
             locationInput.send_keys(location)
 
             # Press DOWN and ENTER Key
-            self.buffer(0.5,1.5)
+            self.buffer(0.5, 1.5)
             locationInput.send_keys(Keys.DOWN)
-            self.buffer(0.5,1.5)
+            self.buffer(0.5, 1.5)
             locationInput.send_keys(Keys.ENTER)
 
         self.jobTitle = jobTitle
@@ -173,7 +173,7 @@ class Crawler:
 
         if position != "All":
             # Find the Experience Level <button> tag
-            self.buffer(1.5,2.5)
+            self.buffer(1.5, 2.5)
             expLevelButton = self.driver.find_element_by_css_selector(
                 "button[aria-label='Experience Level filter. Clicking this button displays all Experience Level filter options.']")
             expLevelButton.click()
@@ -191,14 +191,14 @@ class Crawler:
                 positionLabelText = positionLabel.text.split(" ")[0]
                 # positionCheckBox = pos.find_element_by_css_selector("input")
                 if position == positionLabelText:
-                    self.buffer(0.3,0.7)
+                    self.buffer(0.3, 0.7)
                     positionLabel.click()
                     break
 
             # Click on the Done <button>
             doneButton = parentDiv.find_element_by_css_selector(
                 "div > button[aria-label='Apply filters']")
-            self.buffer(0.3,0.7)
+            self.buffer(0.3, 0.7)
             doneButton.click()
 
             # Set global instance var
@@ -238,7 +238,7 @@ class Crawler:
             # Finds the first <li> tag
             currentLi = unorderedList.find_element_by_css_selector("li")
             currentLi.click()
-            self.buffer(1.5,2.5)
+            self.buffer(1.5, 2.5)
 
             # SCRAPE INFO
             for i in range(jobCount):
@@ -253,9 +253,9 @@ class Crawler:
                     "following-sibling::*")
 
                 currentLi.click()
-                self.buffer(0.5,1.5)
+                self.buffer(0.5, 1.5)
                 currentLi.click()
-                self.buffer(0.5,1.5)
+                self.buffer(0.5, 1.5)
 
                 # Check whether <li> was clicked and data is showing
                 for i in range(5):
@@ -268,6 +268,7 @@ class Crawler:
 
                 # Get data from LinkedIn
                 data = self.getJobData()
+                print(f"{i} : Successfully got {data} \n\n")
 
                 # Append data to CSV File
                 writer.writerow(data)
@@ -296,7 +297,7 @@ class Crawler:
             showMoreButton = self.driver.find_element_by_css_selector(
                 "button[aria-label= 'Show more, visually expands previously read content above this button']")
             showMoreButton.click()
-            self.buffer(1.5,2.5)
+            self.buffer(1.5, 2.5)
         except NoSuchElementException:
             pass
 
@@ -477,7 +478,7 @@ class Crawler:
             Returns:
                 None
         '''
-        self.buffer(1.5,2.5)
+        self.buffer(1.5, 2.5)
         self.driver.close()
 
 
