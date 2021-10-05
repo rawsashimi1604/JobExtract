@@ -85,6 +85,8 @@ class Crawler:
         for i in range(4):
             body.send_keys(Keys.DOWN)
 
+        self.buffer(0.3, 0.5)
+
     def moveErrorJob(self, previousSibling: WebElement, currentSibling: WebElement):
         '''
             Instructs crawler to move browser position back to previous job description, click it, then go back to current job description.
@@ -242,36 +244,43 @@ class Crawler:
 
             # SCRAPE INFO
             for i in range(jobCount):
-                # Moves browser in position for scraping
-                self.moveToNextJob()
+                try:
+                    # Moves browser in position for scraping
+                    self.moveToNextJob()
 
-                # Finds the previous <li> tag
-                prevLi = currentLi
+                    # Finds the previous <li> tag
+                    prevLi = currentLi
 
-                # Finds the next <li> tag
-                currentLi = currentLi.find_element_by_xpath(
-                    "following-sibling::*")
+                    # Finds the next <li> tag
+                    currentLi = currentLi.find_element_by_xpath(
+                        "following-sibling::*")
 
-                currentLi.click()
-                self.buffer(0.5, 1.5)
-                currentLi.click()
-                self.buffer(0.5, 1.5)
+                    currentLi.click()
+                    self.buffer(0.5, 1.5)
+                    currentLi.click()
+                    self.buffer(0.5, 1.5)
 
-                # Check whether <li> was clicked and data is showing
-                for i in range(5):
-                    # Attempt to fix job description not showing bug
-                    if not self.tryToFindData():
-                        self.moveErrorJob(prevLi, currentLi)
+                    # Check whether <li> was clicked and data is showing
+                    for _ in range(5):
+                        # Attempt to fix job description not showing bug
+                        if not self.tryToFindData():
+                            self.moveErrorJob(prevLi, currentLi)
 
+                        else:
+                            break
+
+                    # Get data from LinkedIn
+                    data = self.getJobData()
+                    if data:
+                        print(f"{i} : Successfully got {data} \n\n")
+
+                        # Append data to CSV File
+                        writer.writerow(data)
                     else:
-                        break
+                        continue
 
-                # Get data from LinkedIn
-                data = self.getJobData()
-                print(f"{i} : Successfully got {data} \n\n")
-
-                # Append data to CSV File
-                writer.writerow(data)
+                except (ElementNotInteractableException, NoSuchElementException):
+                    pass
 
                 # Finds the see more <button>, then clicks on it. Allows crawler to scrape more job descriptions.
                 try:
@@ -298,7 +307,7 @@ class Crawler:
                 "button[aria-label= 'Show more, visually expands previously read content above this button']")
             showMoreButton.click()
             self.buffer(1.5, 2.5)
-        except NoSuchElementException:
+        except (NoSuchElementException, ElementNotInteractableException):
             pass
 
         # Find the content <div> for job description information
@@ -345,6 +354,7 @@ class Crawler:
                 bool => True if data is found, False if data is not found
         '''
         # Try to find Job Title <h2>
+        self.driver.implicitly_wait(0.5)
         h2 = self.driver.find_element_by_css_selector(
             "h2[class='top-card-layout__title topcard__title']").text
 
@@ -498,4 +508,4 @@ if __name__ == "__main__":
     #         "Director"
     #     ]
     myCrawler.selectPositionLevel("All")
-    myCrawler.getJobInfo(10)
+    myCrawler.getJobInfo(5000)
