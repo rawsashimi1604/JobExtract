@@ -9,7 +9,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 from pathlib import Path
-from jobs import JobsModel
+from models.jobs import JobsModel
 import re
 from datetime import datetime
 

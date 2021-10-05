@@ -2,8 +2,6 @@ from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.ie.options import ElementScrollBehavior
 from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException
 from selenium.webdriver.remote.webelement import WebElement
 import time
@@ -484,6 +482,18 @@ class Crawler:
 
 if __name__ == "__main__":
     myCrawler = Crawler()
+    # First arg => Job
+    # Second arg => Location
     myCrawler.searchJobs("Sales", "Singapore")
+
+    # First arg => Position Levels
+    # Avail =>  [
+    #         "All",
+    #         "Internship",
+    #         "Entry",
+    #         "Associate",
+    #         "Mid-Senior",
+    #         "Director"
+    #     ]
     myCrawler.selectPositionLevel("All")
     myCrawler.getJobInfo(20)
