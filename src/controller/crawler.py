@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException
+from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 import time
 from datetime import datetime
@@ -354,11 +354,16 @@ class Crawler:
                 bool => True if data is found, False if data is not found
         '''
         # Try to find Job Title <h2>
-        self.driver.implicitly_wait(0.5)
-        h2 = self.driver.find_element_by_css_selector(
-            "h2[class='top-card-layout__title topcard__title']").text
+        try:
+            self.driver.implicitly_wait(0.5)
+            h2 = self.driver.find_element_by_css_selector(
+                "h2[class='top-card-layout__title topcard__title']").text
 
-        return not(h2 == "")
+            return not(h2 == "")
+
+        # If unable to find
+        except StaleElementReferenceException:
+            return False
 
     def scrapeJobTitle(self, currentDiv: WebElement):
         try:
@@ -509,3 +514,4 @@ if __name__ == "__main__":
     #     ]
     myCrawler.selectPositionLevel("All")
     myCrawler.getJobInfo(5000)
+    myCrawler.exitCrawler()
