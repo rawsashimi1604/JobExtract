@@ -21,6 +21,9 @@ class Crawler:
             Returns:
                 None
         '''
+        # Measure time
+        self.start = time.time()
+
         self.driver = webdriver.Chrome()
         self.driver.get("https://sg.linkedin.com/jobs")
         self.driver.maximize_window()
@@ -28,6 +31,10 @@ class Crawler:
         self.positionLevel = "All"
         self.location = "Singapore"
         self.jobTitle = "Sales"
+
+        self.crawlCount = 0
+        self.errorCount = 0
+        self.maxErrorCount = 30
 
     @staticmethod
     def buffer(minseconds: float, maxseconds: float):
@@ -142,9 +149,9 @@ class Crawler:
             locationInput.send_keys(location)
 
             # Press DOWN and ENTER Key
-            self.buffer(0.5, 1.5)
+            self.buffer(2, 2.5)
             locationInput.send_keys(Keys.DOWN)
-            self.buffer(0.5, 1.5)
+            self.buffer(2, 2.5)
             locationInput.send_keys(Keys.ENTER)
 
         self.jobTitle = jobTitle
@@ -175,7 +182,7 @@ class Crawler:
 
         if position != "All":
             # Find the Experience Level <button> tag
-            self.buffer(1.5, 2.5)
+            self.buffer(2.5, 3.5)
             expLevelButton = self.driver.find_element_by_css_selector(
                 "button[aria-label='Experience Level filter. Clicking this button displays all Experience Level filter options.']")
             expLevelButton.click()
@@ -200,7 +207,7 @@ class Crawler:
             # Click on the Done <button>
             doneButton = parentDiv.find_element_by_css_selector(
                 "div > button[aria-label='Apply filters']")
-            self.buffer(0.3, 0.7)
+            self.buffer(1.5, 2.5)
             doneButton.click()
 
             # Set global instance var
@@ -244,6 +251,10 @@ class Crawler:
 
             # SCRAPE INFO
             for i in range(jobCount):
+                if self.errorCount > self.maxErrorCount:
+                    print("\n\nError limit exceeded. Crawler will now shut down.\n\n")
+                    break
+
                 try:
                     # Moves browser in position for scraping
                     self.moveToNextJob()
@@ -276,10 +287,14 @@ class Crawler:
 
                         # Append data to CSV File
                         writer.writerow(data)
+                        self.crawlCount += 1
                     else:
                         continue
 
                 except (ElementNotInteractableException, NoSuchElementException):
+                    print(
+                        f"\n\nTRIGGERED SOME ERROR SCRAPING DATA CANT SAVE TO EXCEL FILE!!!! Remaining Errors : {self.maxErrorCount - self.errorCount}\n\n")
+                    self.errorCount += 1
                     pass
 
                 # Finds the see more <button>, then clicks on it. Allows crawler to scrape more job descriptions.
@@ -495,13 +510,28 @@ class Crawler:
         '''
         self.buffer(1.5, 2.5)
         self.driver.close()
+        print(f'''
+*****************************************************************************************        
+Crawling has ended, browser has been closed.
+
+*****************************************************************************************
+Statistics :
+*****************************************************************************************
+
+### Time taken for code : {round((time.time() - self.start) / 60, 2)} minutes
+### Total data crawled : {self.crawlCount}
+### File directory saved to : {self.getFileName()}
+
+Thank you for using the crawler.
+*****************************************************************************************   
+        ''')
 
 
 if __name__ == "__main__":
     myCrawler = Crawler()
     # First arg => Job
     # Second arg => Location
-    myCrawler.searchJobs("Sales", "Singapore")
+    myCrawler.searchJobs("Sales", "Russia")
 
     # First arg => Position Levels
     # Avail =>  [
@@ -512,6 +542,6 @@ if __name__ == "__main__":
     #         "Mid-Senior",
     #         "Director"
     #     ]
-    myCrawler.selectPositionLevel("All")
-    myCrawler.getJobInfo(5000)
+    myCrawler.selectPositionLevel("Internship")
+    myCrawler.getJobInfo(1000)
     myCrawler.exitCrawler()
