@@ -542,6 +542,6 @@ if __name__ == "__main__":
     #         "Mid-Senior",
     #         "Director"
     #     ]
-    myCrawler.selectPositionLevel("Director")
+    myCrawler.selectPositionLevel("Internship")
     myCrawler.getJobInfo(1000)
     myCrawler.exitCrawler()
