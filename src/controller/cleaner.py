@@ -1,10 +1,17 @@
+from os import stat
 import nltk
+from nltk.grammar import cfg_demo
+from nltk.util import pr
 import pandas as pd
+from langdetect import detect
 from datetime import datetime
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem.snowball import SnowballStemmer
 from pathlib import Path
+from models.jobs import JobsModel
+import re
+from datetime import datetime
 
 
 class Cleaner:
@@ -43,14 +50,56 @@ class Cleaner:
         # save the cleaned dataframe
         cleanedDataFrame.to_csv(filePath, index=False)
 
+    @staticmethod
+    def saveJobObject(jobObject, dataframe, index):
+        '''
+            Updates the Job Object, saves to dataframe index.
+        '''
+        jobObject.updateValues()
+        for i in range(len(jobObject.parameters)):
+            dataframe[jobObject.parameters[i]
+                      ][index] = jobObject.objectValues[i]
+
     def cleanFile(self, inputDataframe):
         # clean the dataframe
         df = inputDataframe
         df_len = len(df.index)
+
+        # Clean each row, update jobObject, then set jobObject values to csv
         for i in range(df_len):
-            currDescription = df["description"][i]
+            # Initalize Job Object
+            jobObject = JobsModel(
+                df["jobTitle"][i],
+                df["companyName"][i],
+                df["location"][i],
+                df["datePosted"][i],
+                df["appStatus"][i],
+                df["description"][i],
+                df["seniorityLevel"][i],
+                df["employmentType"][i],
+                df["jobFunction"][i],
+                df["industries"][i]
+            )
+
+            currDescription = jobObject.description
             newDescription = self.cleanDescription(currDescription)
-            df["description"][i] = newDescription
+
+            # If current language is not english, drop it from dataframe. Loop until found an english job description.
+            if self.languageDetect(newDescription) != "en":
+                df.drop(i, axis=0, inplace=True)
+
+            else:
+                # Set cleaned description if current language is english.
+                jobObject.description = newDescription
+
+                # Get new date if date exists, set cleaned date if date exists.
+                crawlDate = self.getCrawlDate(df)
+                cleanedDate = self.getPostedDate(
+                    crawlDate, jobObject.datePosted)
+                jobObject.datePosted = cleanedDate
+
+                # Save new object to dataframe
+                self.saveJobObject(jobObject, df, i)
 
         return df
 
@@ -73,10 +122,44 @@ class Cleaner:
         descriptionString = filtered_data_to_go_back_into_df
         return descriptionString
 
+    def languageDetect(self, detectlanguage):
+        english_or_not = detect(detectlanguage)
+        return english_or_not
+
+    def getCrawlDate(self, dataframe):
+        '''
+            Get date from CSV filename
+        '''
+        filename = re.search('([^/]*)$', dataframe.attrs['filename']).group()
+        return re.search('^\d{4}_\d{2}_\d{2}', filename).group()
+
+    def getPostedDate(self, filenameDate, postedDate):
+        ''' 
+            Get date of job posting using filename and raw posted date
+        '''
+        crawl_date = datetime.strptime(filenameDate, "%Y_%m_%d")
+        posted_date = ""
+        if not pd.isna(postedDate):
+            if re.search('day', postedDate):
+                posted_date = crawl_date-pd.DateOffset(days=int(postedDate[0]))
+            elif re.search('week', postedDate):
+                posted_date = crawl_date - \
+                    pd.DateOffset(weeks=int(postedDate[0]))
+            elif re.search('month', postedDate):
+                posted_date = crawl_date - \
+                    pd.DateOffset(months=int(postedDate[0]))
+            elif re.search('year', postedDate):
+                posted_date = crawl_date - \
+                    pd.DateOffset(years=int(postedDate[0]))
+
+        return str(posted_date)[0:10]
+
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = "../models/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+    myDataFile = r"../data/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
     myData = myCleaner.openData(myDataFile)
+    # Set the 'filename' attribute to be the filepath to extract crawl date later
+    myData.attrs['filename'] = myDataFile
     myCleanedData = myCleaner.cleanFile(myData)
     myCleaner.saveCleanedData(myCleanedData, myDataFile)

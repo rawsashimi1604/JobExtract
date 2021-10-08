@@ -6,3 +6,5 @@ import spacy
 import gensim
 import matplotlib
 import seaborn
+import langdetect
+import pandasgui

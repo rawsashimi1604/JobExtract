@@ -2,15 +2,14 @@ from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.ie.options import ElementScrollBehavior
-from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException
+from selenium.common.exceptions import ElementNotInteractableException, NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.remote.webelement import WebElement
 import time
 from datetime import datetime
 from pathlib import Path
 import csv
 import sys
+from random import uniform
 
 
 class Crawler:
@@ -22,6 +21,9 @@ class Crawler:
             Returns:
                 None
         '''
+        # Measure time
+        self.start = time.time()
+
         self.driver = webdriver.Chrome()
         self.driver.get("https://sg.linkedin.com/jobs")
         self.driver.maximize_window()
@@ -30,8 +32,12 @@ class Crawler:
         self.location = "Singapore"
         self.jobTitle = "Sales"
 
+        self.crawlCount = 0
+        self.errorCount = 0
+        self.maxErrorCount = 30
+
     @staticmethod
-    def buffer(seconds: int):
+    def buffer(minseconds: float, maxseconds: float):
         '''
             Instructs Crawler sleep for x seconds
             Parameters:
@@ -39,7 +45,7 @@ class Crawler:
             Returns:
                 None
         '''
-        time.sleep(seconds)
+        time.sleep(uniform(minseconds, maxseconds))
 
     @staticmethod
     def dateTime():
@@ -56,10 +62,10 @@ class Crawler:
         return datetime_string
 
     def getFileName(self):
-        return rf"../models/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
+        return rf"../data/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
 
     def makeFileDirectory(self):
-        path = Path(f"../models/rawData/{self.location}/{self.positionLevel}/")
+        path = Path(f"../data/rawData/{self.location}/{self.positionLevel}/")
         path.mkdir(parents=True, exist_ok=True)
 
     def navigate(self, location: str):
@@ -86,6 +92,8 @@ class Crawler:
         for i in range(4):
             body.send_keys(Keys.DOWN)
 
+        self.buffer(0.3, 0.5)
+
     def moveErrorJob(self, previousSibling: WebElement, currentSibling: WebElement):
         '''
             Instructs crawler to move browser position back to previous job description, click it, then go back to current job description.
@@ -97,7 +105,7 @@ class Crawler:
         '''
         body = self.driver.find_element_by_css_selector("body")
 
-        self.buffer(0.5)
+        self.buffer(0.3, 0.7)
         # Press the Up button 4 times
         for i in range(4):
             body.send_keys(Keys.UP)
@@ -105,14 +113,14 @@ class Crawler:
         # Click the previous sibling element
         previousSibling.click()
 
-        self.buffer(0.5)
+        self.buffer(0.3, 0.7)
         # Press the Down button 4 times
         for i in range(4):
             body.send_keys(Keys.DOWN)
 
         # Click the current sibling element
         currentSibling.click()
-        self.buffer(0.5)
+        self.buffer(0.3, 0.7)
 
     def searchJobs(self, jobTitle: str, location: str):
         '''
@@ -124,7 +132,7 @@ class Crawler:
                 None
         '''
 
-        self.buffer(2)
+        self.buffer(1.5, 2.5)
 
         # Finds the <body> tag
         body = self.driver.find_element_by_css_selector("body")
@@ -141,9 +149,9 @@ class Crawler:
             locationInput.send_keys(location)
 
             # Press DOWN and ENTER Key
-            self.buffer(1)
+            self.buffer(2, 2.5)
             locationInput.send_keys(Keys.DOWN)
-            self.buffer(1)
+            self.buffer(2, 2.5)
             locationInput.send_keys(Keys.ENTER)
 
         self.jobTitle = jobTitle
@@ -174,7 +182,7 @@ class Crawler:
 
         if position != "All":
             # Find the Experience Level <button> tag
-            self.buffer(2)
+            self.buffer(2.5, 3.5)
             expLevelButton = self.driver.find_element_by_css_selector(
                 "button[aria-label='Experience Level filter. Clicking this button displays all Experience Level filter options.']")
             expLevelButton.click()
@@ -192,14 +200,14 @@ class Crawler:
                 positionLabelText = positionLabel.text.split(" ")[0]
                 # positionCheckBox = pos.find_element_by_css_selector("input")
                 if position == positionLabelText:
-                    self.buffer(0.5)
+                    self.buffer(0.3, 0.7)
                     positionLabel.click()
                     break
 
             # Click on the Done <button>
             doneButton = parentDiv.find_element_by_css_selector(
                 "div > button[aria-label='Apply filters']")
-            self.buffer(0.5)
+            self.buffer(1.5, 2.5)
             doneButton.click()
 
             # Set global instance var
@@ -239,39 +247,55 @@ class Crawler:
             # Finds the first <li> tag
             currentLi = unorderedList.find_element_by_css_selector("li")
             currentLi.click()
-            self.buffer(2)
+            self.buffer(1.5, 2.5)
 
             # SCRAPE INFO
             for i in range(jobCount):
-                # Moves browser in position for scraping
-                self.moveToNextJob()
+                if self.errorCount > self.maxErrorCount:
+                    print("\n\nError limit exceeded. Crawler will now shut down.\n\n")
+                    break
 
-                # Finds the previous <li> tag
-                prevLi = currentLi
+                try:
+                    # Moves browser in position for scraping
+                    self.moveToNextJob()
 
-                # Finds the next <li> tag
-                currentLi = currentLi.find_element_by_xpath(
-                    "following-sibling::*")
+                    # Finds the previous <li> tag
+                    prevLi = currentLi
 
-                currentLi.click()
-                self.buffer(1)
-                currentLi.click()
-                self.buffer(1)
+                    # Finds the next <li> tag
+                    currentLi = currentLi.find_element_by_xpath(
+                        "following-sibling::*")
 
-                # Check whether <li> was clicked and data is showing
-                for i in range(5):
-                    # Attempt to fix job description not showing bug
-                    if not self.tryToFindData():
-                        self.moveErrorJob(prevLi, currentLi)
+                    currentLi.click()
+                    self.buffer(0.5, 1.5)
+                    currentLi.click()
+                    self.buffer(0.5, 1.5)
 
+                    # Check whether <li> was clicked and data is showing
+                    for _ in range(5):
+                        # Attempt to fix job description not showing bug
+                        if not self.tryToFindData():
+                            self.moveErrorJob(prevLi, currentLi)
+
+                        else:
+                            break
+
+                    # Get data from LinkedIn
+                    data = self.getJobData()
+                    if data:
+                        print(f"{i} : Successfully got {data} \n\n")
+
+                        # Append data to CSV File
+                        writer.writerow(data)
+                        self.crawlCount += 1
                     else:
-                        break
+                        continue
 
-                # Get data from LinkedIn
-                data = self.getJobData()
-
-                # Append data to CSV File
-                writer.writerow(data)
+                except (ElementNotInteractableException, NoSuchElementException):
+                    print(
+                        f"\n\nTRIGGERED SOME ERROR SCRAPING DATA CANT SAVE TO EXCEL FILE!!!! Remaining Errors : {self.maxErrorCount - self.errorCount}\n\n")
+                    self.errorCount += 1
+                    pass
 
                 # Finds the see more <button>, then clicks on it. Allows crawler to scrape more job descriptions.
                 try:
@@ -297,8 +321,8 @@ class Crawler:
             showMoreButton = self.driver.find_element_by_css_selector(
                 "button[aria-label= 'Show more, visually expands previously read content above this button']")
             showMoreButton.click()
-            self.buffer(2)
-        except NoSuchElementException:
+            self.buffer(1.5, 2.5)
+        except (NoSuchElementException, ElementNotInteractableException):
             pass
 
         # Find the content <div> for job description information
@@ -345,10 +369,16 @@ class Crawler:
                 bool => True if data is found, False if data is not found
         '''
         # Try to find Job Title <h2>
-        h2 = self.driver.find_element_by_css_selector(
-            "h2[class='top-card-layout__title topcard__title']").text
+        try:
+            self.driver.implicitly_wait(0.5)
+            h2 = self.driver.find_element_by_css_selector(
+                "h2[class='top-card-layout__title topcard__title']").text
 
-        return not(h2 == "")
+            return not(h2 == "")
+
+        # If unable to find
+        except StaleElementReferenceException:
+            return False
 
     def scrapeJobTitle(self, currentDiv: WebElement):
         try:
@@ -478,12 +508,40 @@ class Crawler:
             Returns:
                 None
         '''
-        self.buffer(2)
+        self.buffer(1.5, 2.5)
         self.driver.close()
+        print(f'''
+*****************************************************************************************        
+Crawling has ended, browser has been closed.
+
+*****************************************************************************************
+Statistics :
+*****************************************************************************************
+
+### Time taken for code : {round((time.time() - self.start) / 60, 2)} minutes
+### Total data crawled : {self.crawlCount}
+### File directory saved to : {self.getFileName()}
+
+Thank you for using the crawler.
+*****************************************************************************************   
+        ''')
 
 
 if __name__ == "__main__":
     myCrawler = Crawler()
-    myCrawler.searchJobs("Sales", "Singapore")
-    myCrawler.selectPositionLevel("All")
-    myCrawler.getJobInfo(20)
+    # First arg => Job
+    # Second arg => Location
+    myCrawler.searchJobs("Sales", "Russia")
+
+    # First arg => Position Levels
+    # Avail =>  [
+    #         "All",
+    #         "Internship",
+    #         "Entry",
+    #         "Associate",
+    #         "Mid-Senior",
+    #         "Director"
+    #     ]
+    myCrawler.selectPositionLevel("Internship")
+    myCrawler.getJobInfo(1000)
+    myCrawler.exitCrawler()
