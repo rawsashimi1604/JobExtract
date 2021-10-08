@@ -21,6 +21,9 @@ class Crawler:
             Returns:
                 None
         '''
+        # Measure time
+        self.start = time.time()
+
         self.driver = webdriver.Chrome()
         self.driver.get("https://sg.linkedin.com/jobs")
         self.driver.maximize_window()
@@ -28,6 +31,8 @@ class Crawler:
         self.positionLevel = "All"
         self.location = "Singapore"
         self.jobTitle = "Sales"
+
+        self.crawlCount = 0
 
     @staticmethod
     def buffer(minseconds: float, maxseconds: float):
@@ -276,6 +281,7 @@ class Crawler:
 
                         # Append data to CSV File
                         writer.writerow(data)
+                        self.crawlCount += 1
                     else:
                         continue
 
@@ -495,13 +501,28 @@ class Crawler:
         '''
         self.buffer(1.5, 2.5)
         self.driver.close()
+        print(f'''
+*****************************************************************************************        
+Crawling has ended, browser has been closed.
+
+*****************************************************************************************
+Statistics :
+*****************************************************************************************
+
+### Time taken for code : {round((time.time() - self.start) / 60, 2)} minutes
+### Total data crawled : {self.crawlCount}
+### File directory saved to : {self.getFileName()}
+
+Thank you for using the crawler.
+*****************************************************************************************   
+        ''')
 
 
 if __name__ == "__main__":
     myCrawler = Crawler()
     # First arg => Job
     # Second arg => Location
-    myCrawler.searchJobs("Sales", "Singapore")
+    myCrawler.searchJobs("Sales", "Russia")
 
     # First arg => Position Levels
     # Avail =>  [
@@ -513,5 +534,5 @@ if __name__ == "__main__":
     #         "Director"
     #     ]
     myCrawler.selectPositionLevel("All")
-    myCrawler.getJobInfo(5000)
+    myCrawler.getJobInfo(5)
     myCrawler.exitCrawler()
