@@ -106,7 +106,7 @@ class Cleaner:
     def cleanDescription(self, descriptionString):
         # clean the description
         filtered_words = []
-
+        descriptionString = str(descriptionString)
         stem_the_desc = self.stem_words.stem(descriptionString)
         descriptionString = stem_the_desc
         list_of_desc = word_tokenize(descriptionString)
@@ -157,7 +157,7 @@ class Cleaner:
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = r"../data/rawData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+    myDataFile = r"../data/rawData/Russia/Director/2021_10_08_23_43_Sales_dataFile.csv"
     myData = myCleaner.openData(myDataFile)
     # Set the 'filename' attribute to be the filepath to extract crawl date later
     myData.attrs['filename'] = myDataFile
