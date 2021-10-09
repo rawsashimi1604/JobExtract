@@ -97,7 +97,8 @@ class Cleaner:
                 cleanedDate = self.getPostedDate(
                     crawlDate, jobObject.datePosted)
                 jobObject.datePosted = cleanedDate
-
+                cleanedAppStatus = self.cleanAppStatus(jobObject.appStatus)
+                jobObject.appStatus = cleanedAppStatus
                 # Save new object to dataframe
                 self.saveJobObject(jobObject, df, i)
 
@@ -154,10 +155,18 @@ class Cleaner:
 
         return str(posted_date)[0:10]
 
+    def cleanAppStatus(self, appStatus):
+        '''
+            Get number of applicants for each job posting
+        '''
+        pattern_string = "Be among the first 25 applicants"
+        if appStatus == pattern_string:
+            appStatus = "< 25 applicants"
+        return appStatus
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = r"../data/rawData/Russia/Director/2021_10_08_23_43_Sales_dataFile.csv"
+    myDataFile = r"../data/rawData/Singapore/Associate/2021_10_09_13_11_Sales_dataFile.csv"
     myData = myCleaner.openData(myDataFile)
     # Set the 'filename' attribute to be the filepath to extract crawl date later
     myData.attrs['filename'] = myDataFile
