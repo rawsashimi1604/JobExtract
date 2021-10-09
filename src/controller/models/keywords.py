@@ -1,24 +1,30 @@
 class KeywordsModel:
-    def __init__(self):
-        self.dependenceKeywords = '''customer team partner people relationship communication support contact understanding responsibility care group communicate staff manner help follow share partner support home assist family serve consultant'''.split(
-            " ")
+    def __init__(self, keyword, count, type_):
+        self.keyword = keyword
+        self.count = count
+        self.type_ = type_
 
-        self.independenceKeywords = ['job', 'solution', 'operate', 'knowledge', 'comply', 'degree', 'legislation', 'technology', 'write', 'deliver', 'sell', 'learn', 'software', 'performance', 'project', 'service', 'healthcare', 'perform', 'compliance', 'emergency', 'risk', 'bachelor', 'issue', 'retail', 'conflict', 'accounting', 'forecast', 'negotiation', 'achieve',
-                                     'jurisdiction', 'quality', 'information', 'territory', 'training', 'report', 'tool', 'presentation', 'problem', 'success', 'implement', 'individual', 'engineering', 'order', 'result', 'negotiate', 'specialist', 'deal', 'operation', 'promote', 'study', 'qualification', 'program', 'self', 'execute', 'initiative', 'task', 'win', 'wealth', 'education']
+        self.parameters = [
+            "keyword",
+            "count",
+            "type_"
+        ]
 
-        self.allKeywords = self.dependenceKeywords + self.independenceKeywords
+        self.objectValues = [
+            self.keyword,
+            self.count,
+            self.type_
+        ]
 
     def __repr__(self):
-        pass
+        return f"<KeywordsModel object => keyword: {self.keyword}, count: {self.count}, type_: {self.type_}>\n"
 
     def __str__(self):
-        pass
+        return f"KeywordsModel attritutes: <KeywordsModel object => keyword: {self.keyword}, count: {self.count}, type_: {self.type_}>\n"
 
-
-myModel = KeywordsModel()
-
-
-# customer	team	partner	people	relationship	communication	support
-# contact	understanding	responsibility	care	group	communicate	staff
-# manner	help	follow	share	partner	support	home
-# assist	family	serve	consultant
+    def updateValues(self):
+        self.objectValues = [
+            self.keyword,
+            self.count,
+            self.type_
+        ]

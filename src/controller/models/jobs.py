@@ -38,7 +38,7 @@ class JobsModel:
         ]
 
     def __repr__(self):
-        return f"<JobsModel jobTitle: {self.jobTitle}, companyName: {self.companyName}, location: {self.location}, datePosted: {self.datePosted}, appStatus: {self.appStatus}, description: {self.description}, seniorityLevel: {self.seniorityLevel}, employmentType: {self.employmentType}, jobFunction: {self.jobFunction}, industries: {self.industries}>\n"
+        return f"<JobsModel object => jobTitle: {self.jobTitle}, companyName: {self.companyName}, location: {self.location}, datePosted: {self.datePosted}, appStatus: {self.appStatus}, description: {self.description}, seniorityLevel: {self.seniorityLevel}, employmentType: {self.employmentType}, jobFunction: {self.jobFunction}, industries: {self.industries}>\n"
 
     def __str__(self):
         return f"JobsModel attributes: <JobsModel jobTitle: {self.jobTitle}, companyName: {self.companyName}, location: {self.location}, datePosted: {self.datePosted}, appStatus: {self.appStatus}, description: {self.description}, seniorityLevel: {self.seniorityLevel}, employmentType: {self.employmentType}, jobFunction: {self.jobFunction}, industries: {self.industries}>\n"
