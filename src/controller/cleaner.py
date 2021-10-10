@@ -24,6 +24,13 @@ class Cleaner:
         # Run this function to download all NLTK libraries before using Cleaner
         nltk.download()
 
+    def startCleaner(self, myDataFile):
+        myData = myCleaner.openData(myDataFile)
+        # Set the 'filename' attribute to be the filepath to extract crawl date later
+        myData.attrs['filename'] = myDataFile
+        myCleanedData = myCleaner.cleanFile(myData)
+        myCleaner.saveCleanedData(myCleanedData, myDataFile)
+
     def openData(self, filePath):
         # returns raw data dataframe for cleaning
         return pd.read_csv(filePath)
@@ -157,7 +164,7 @@ class Cleaner:
 
     def cleanAppStatus(self, appStatus):
         '''
-            Get number of applicants for each job posting
+            Clean the number of applicants for each job posting
         '''
         pattern_string = "Be among the first 25 applicants"
         if appStatus == pattern_string:
@@ -167,8 +174,9 @@ class Cleaner:
 if __name__ == "__main__":
     myCleaner = Cleaner()
     myDataFile = r"../data/rawData/Singapore/Associate/2021_10_09_13_11_Sales_dataFile.csv"
-    myData = myCleaner.openData(myDataFile)
-    # Set the 'filename' attribute to be the filepath to extract crawl date later
-    myData.attrs['filename'] = myDataFile
-    myCleanedData = myCleaner.cleanFile(myData)
-    myCleaner.saveCleanedData(myCleanedData, myDataFile)
+    # myData = myCleaner.openData(myDataFile)
+    # # Set the 'filename' attribute to be the filepath to extract crawl date later
+    # myData.attrs['filename'] = myDataFile
+    # myCleanedData = myCleaner.cleanFile(myData)
+    # myCleaner.saveCleanedData(myCleanedData, myDataFile)
+    myCleaner.startCleaner(myDataFile)

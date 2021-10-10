@@ -531,7 +531,7 @@ if __name__ == "__main__":
     myCrawler = Crawler()
     # First arg => Job
     # Second arg => Location
-    myCrawler.searchJobs("Sales", "Russia")
+    myCrawler.searchJobs("Sales", "Singapore")
 
     # First arg => Position Levels
     # Avail =>  [
@@ -542,6 +542,6 @@ if __name__ == "__main__":
     #         "Mid-Senior",
     #         "Director"
     #     ]
-    myCrawler.selectPositionLevel("Internship")
+    myCrawler.selectPositionLevel("Mid-Senior")
     myCrawler.getJobInfo(1000)
     myCrawler.exitCrawler()
