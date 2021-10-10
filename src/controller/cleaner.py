@@ -25,11 +25,11 @@ class Cleaner:
         nltk.download()
 
     def startCleaner(self, myDataFile):
-        myData = myCleaner.openData(myDataFile)
+        myData = self.openData(myDataFile)
         # Set the 'filename' attribute to be the filepath to extract crawl date later
         myData.attrs['filename'] = myDataFile
-        myCleanedData = myCleaner.cleanFile(myData)
-        myCleaner.saveCleanedData(myCleanedData, myDataFile)
+        myCleanedData = self.cleanFile(myData)
+        self.saveCleanedData(myCleanedData, myDataFile)
 
     def openData(self, filePath):
         # returns raw data dataframe for cleaning

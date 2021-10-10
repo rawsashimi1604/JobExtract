@@ -45,11 +45,7 @@ class GUI:
         myCleaner = cleaner.Cleaner()
         
         try:
-            myData = myCleaner.openData(self.filename)
-            # Set the 'filename' attribute to be the filepath to extract crawl date later
-            myData.attrs['filename'] = self.filename
-            myCleanedData = myCleaner.cleanFile(myData)
-            myCleaner.saveCleanedData(myCleanedData, self.filename)
+            myCleaner.startCleaner(self.filename)
             cleaning_text = 'Successfully cleaned {}'.format(self.filename)
             cleaning_status = tk.Label(
                 text=cleaning_text,
