@@ -8,7 +8,7 @@ sns.set_theme()
 
 # Load a dataset
 crash_df = sns.load_dataset("car_crashes")
-myKeywords = "../data/keywords/SINGAPORE_2021_09_29_21_34_Sales_dataFile_keywords.csv"
+myKeywords = "../../data/keywords/SINGAPORE_2021_09_29_21_34_Sales_dataFile_keywords.csv"
 myData = pd.read_csv(myKeywords)
 
 sns.barplot(x="type_", y="count", data=myData)
