@@ -1,64 +1,129 @@
 import tkinter as tk
 from os import getcwd
+from functools import partial
 import sys
-from tkinter.constants import WORD
+import pandas as pd
+from pandasgui import show
 sys.path.append('../controller')
 import cleaner
 
 class GUI:
     def __init__(self):
-        self.filename = ""
-        self.window = tk.Tk()
+        pass
 
     def startGUI(self):
-        window = self.window
+        window = tk.Tk()
         window.title("LinkedIn Data Cleaner")
-        window.configure(background='white', pady = "20", padx ="10")
-        greeting = tk.Label(
-            text='Welcome to LinkedIn cleaner bot!',
-            background= 'white',
-            width=100,
-            height=10
+        window.configure(background='#ADD8E6', pady = "20", padx ="10", height= 600, width=800)
+        frame = tk.Frame(
+            window,
+            height=400,
+            width=600,
+            bg = "#ADD8E6"
         )
+        frame2 = tk.Frame(
+            frame,
+            # width=600,
+            # height=100,
+            bg="#ADD8E6"
+        )
+        greeting = tk.Label(
+            frame2,
+            text='Welcome to LinkedIn cleaner bot!',
+            background= "#ADD8E6",
+        )
+        
+        canvas = tk.Canvas(
+            frame,
+        )
+        scrollbar = tk.Scrollbar(
+            frame,
+            orient='vertical',
+            command=canvas.yview,
+        )
+        status_frame = tk.Frame(
+            canvas,
+            height=350,
+            width=450,
+        )
+        status_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            )
+        )
+        # pandas_button = tk.Button(
+        #     frame,
+        #     text= "open pandas",
+        #     command=show
+        # )
+        canvas.create_window((0, 0), window=status_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
         clean_button = tk.Button(
+            frame2,
             text='Clean data file',
             background = "#cfcfcf",
-            command= self.chooseDirectory,
+            command= partial(self.startCleaner,status_frame)
         )
-        # status_text = tk.Text(
-        #     window, 
-        #     width=80, 
-        #     height=30,
-        #     wrap=WORD
-        # )
-        # status_text.pack()
+        # for i in range (50):
+        #     tk.Label(status_frame, text="Sample scrolling label").pack()
+        pandas_button = tk.Button(
+            frame2,
+            text='Open Pandas excel file reader',
+            background = "#cfcfcf",
+            command = self.pandas_GUI
+        )
+        frame2.pack(side='top')
+        frame.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.8)
+        
         greeting.pack()
-        clean_button.pack(pady=10)
+        # pandas_button.pack()
+        clean_button.pack(side='left',padx=10)
+        pandas_button.pack(side='left',padx=10)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
         window.mainloop()
 
     def chooseDirectory(self):
         cwd = getcwd()
-        self.filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
-        self.startCleaner()
+        filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
+        return filename
+        # self.filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
+        # self.startCleaner()
 
-    def startCleaner(self):
-        myCleaner = cleaner.Cleaner()
-        
+    def startCleaner(self,status_frame):
+        filename = ''
         try:
-            myCleaner.startCleaner(self.filename)
-            cleaning_text = 'Successfully cleaned {}'.format(self.filename)
+            filename = self.chooseDirectory()
+            myCleaner = cleaner.Cleaner()
+            myCleaner.startCleaner(filename)
+            cleaning_text = 'Successfully cleaned {}'.format(filename)
             cleaning_status = tk.Label(
+                status_frame,
                 text=cleaning_text,
-                fg='green'
+                fg='green',
+                wraplength=550,
+                justify='left'
             )
-            cleaning_status.pack()
+            cleaning_status.pack(side='top')
+            cleaned_filename = myCleaner.makeCleanedDataFileDirectory(filename)
+            df = pd.read_csv(cleaned_filename)
+            self.pandas_GUI(df)
             # status_text.insert('1.0', cleaning_text)
-        except KeyError:
-            error_status = tk.Label(
-                text= 'Error when cleaning file {}'.format(self.filename),
-                fg = 'red'
-            )
-            error_status.pack()
+        except (KeyError, AttributeError) as e:
+            if len(filename) > 0:
+                error_status = tk.Label(
+                    status_frame,
+                    text= 'Error when cleaning file {}'.format(filename),
+                    fg = 'red',
+                    wraplength=550,
+                    justify='left'
+                )
+                error_status.pack(side='top')
+            print(e)
+        
+    def pandas_GUI(self, df =''):
+        show(df)
 
 if __name__ == "__main__":
     myGUI = GUI()
