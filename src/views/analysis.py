@@ -10,8 +10,9 @@ sns.set_theme()
 crash_df = sns.load_dataset("car_crashes")
 myKeywords = "../data/keywords/SINGAPORE_2021_09_29_21_34_Sales_dataFile_keywords.csv"
 myData = pd.read_csv(myKeywords)
-myData = myData.sort_values(by=["count"], ascending=False).head(10)
-sns.stripplot(x="keywords", y="count", data=myData)
+
+sns.barplot(x="type_", y="count", data=myData)
+
 # Styling
 # sns.set_style('ticks')
 # sns.set_context('paper', font_scale=1.2)

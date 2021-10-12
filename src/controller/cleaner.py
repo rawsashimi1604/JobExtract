@@ -1,4 +1,5 @@
 from os import stat
+import langdetect
 import nltk
 from nltk.grammar import cfg_demo
 from nltk.util import pr
@@ -71,6 +72,14 @@ class Cleaner:
         # clean the dataframe
         df = inputDataframe
         df_len = len(df.index)
+        
+        # Get current job position file selected
+        currPositionDict = dict(df["seniorityLevel"].value_counts()[:5])
+        # If it is not "All" File
+        if len(currPositionDict) == 1:
+            changePositionFlag = True
+        else:
+            changePositionFlag = False
 
         # Clean each row, update jobObject, then set jobObject values to csv
         for i in range(df_len):
@@ -87,12 +96,15 @@ class Cleaner:
                 df["jobFunction"][i],
                 df["industries"][i]
             )
-
             currDescription = jobObject.description
             newDescription = self.cleanDescription(currDescription)
 
             # If current language is not english, drop it from dataframe. Loop until found an english job description.
             if self.languageDetect(newDescription) != "en":
+                df.drop(i, axis=0, inplace=True)
+            
+            # If date posted is empty
+            elif type(jobObject.datePosted) == float:
                 df.drop(i, axis=0, inplace=True)
 
             else:
@@ -101,11 +113,16 @@ class Cleaner:
 
                 # Get new date if date exists, set cleaned date if date exists.
                 crawlDate = self.getCrawlDate(df)
-                cleanedDate = self.getPostedDate(
-                    crawlDate, jobObject.datePosted)
+                cleanedDate = self.getPostedDate(crawlDate, jobObject.datePosted)
                 jobObject.datePosted = cleanedDate
+
                 cleanedAppStatus = self.cleanAppStatus(jobObject.appStatus)
                 jobObject.appStatus = cleanedAppStatus
+
+                # Set seniorityLevel if field is empty and file is not "ALL"
+                if changePositionFlag:
+                    jobObject.seniorityLevel = list(currPositionDict.keys())[0]
+                
                 # Save new object to dataframe
                 self.saveJobObject(jobObject, df, i)
 
@@ -131,7 +148,10 @@ class Cleaner:
         return descriptionString
 
     def languageDetect(self, detectlanguage):
-        english_or_not = detect(detectlanguage)
+        try:
+            english_or_not = detect(detectlanguage)
+        except langdetect.LangDetectException:
+            return False
         return english_or_not
 
     def getCrawlDate(self, dataframe):
@@ -173,10 +193,5 @@ class Cleaner:
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = r"../data/rawData/Singapore/Associate/2021_10_09_13_11_Sales_dataFile.csv"
-    # myData = myCleaner.openData(myDataFile)
-    # # Set the 'filename' attribute to be the filepath to extract crawl date later
-    # myData.attrs['filename'] = myDataFile
-    # myCleanedData = myCleaner.cleanFile(myData)
-    # myCleaner.saveCleanedData(myCleanedData, myDataFile)
+    myDataFile = r"../data/rawData/China/Mid-Senior/2021_10_10_15_21_Sales_dataFile.csv"
     myCleaner.startCleaner(myDataFile)

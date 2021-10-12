@@ -511,19 +511,19 @@ class Crawler:
         self.buffer(1.5, 2.5)
         self.driver.close()
         print(f'''
-*****************************************************************************************        
-Crawling has ended, browser has been closed.
+        *****************************************************************************************        
+        Crawling has ended, browser has been closed.
 
-*****************************************************************************************
-Statistics :
-*****************************************************************************************
+        *****************************************************************************************
+        Statistics :
+        *****************************************************************************************
 
-### Time taken for code : {round((time.time() - self.start) / 60, 2)} minutes
-### Total data crawled : {self.crawlCount}
-### File directory saved to : {self.getFileName()}
+        ### Time taken for code : {round((time.time() - self.start) / 60, 2)} minutes
+        ### Total data crawled : {self.crawlCount}
+        ### File directory saved to : {self.getFileName()}
 
-Thank you for using the crawler.
-*****************************************************************************************   
+        Thank you for using the crawler.
+        *****************************************************************************************   
         ''')
 
 
