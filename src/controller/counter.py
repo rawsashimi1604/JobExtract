@@ -79,9 +79,3 @@ if __name__ == "__main__":
     myFile = r"../data/cleanedData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
     myCounter.exportToCSV(myFile)
 
-# keywords_singapore
-# keywords_usa
-# keywords_russia
-# keywords_china
-
-# Singapore Excel file

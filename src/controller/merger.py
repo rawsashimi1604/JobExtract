@@ -8,7 +8,7 @@ class Merger:
         pass
     
     def send_merge_df_to_analysis(self, clean_data_for_analysis, fileName):
-        clean_data_for_analysis.to_csv(f"../views/analysisDatasets/{fileName}.csv", index=False)
+        clean_data_for_analysis.to_csv(f"../data/mergedData/{fileName}.csv", index=False)
 
 
     def merging_all_df(self, associatedata, directordata, entrydata, internshipdata,mid_seniordata):
