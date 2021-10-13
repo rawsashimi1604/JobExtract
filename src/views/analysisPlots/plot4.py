@@ -15,6 +15,7 @@ def count(dataframe):
     return len(dataframe.index)
 
 def constructDataset():
+
     # Dataset (Plot 2)
     associateKwDataFrame = pd.read_csv("../../data/keywords/KEYWORDS_AllCountries_Associate_Data.csv")
     directorKwDataFrame = pd.read_csv("../../data/keywords/KEYWORDS_AllCountries_Director_Data.csv")
@@ -86,3 +87,6 @@ def constructDataset():
     # FINAL DATASET
     datasetDataframe = pd.DataFrame(columns=columns, data=data)
     return datasetDataframe
+
+# Dataset (Plot 4)
+datasetDataframe = constructDataset()

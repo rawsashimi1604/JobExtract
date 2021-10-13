@@ -89,4 +89,3 @@ def constructDataset():
 
 # Dataset (Plot 2)
 datasetDataframe = constructDataset()
-print(datasetDataframe)
