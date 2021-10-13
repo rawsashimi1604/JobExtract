@@ -19,6 +19,7 @@ class Cleaner:
     def __init__(self):
         self.stop_words = set(stopwords.words("english"))
         self.stem_words = SnowballStemmer("english")
+        self.fileLocation = ""
 
     @staticmethod
     def downloadNLTK():
@@ -27,6 +28,7 @@ class Cleaner:
 
     def startCleaner(self, myDataFile):
         myData = self.openData(myDataFile)
+        self.fileLocation = myDataFile
         # Set the 'filename' attribute to be the filepath to extract crawl date later
         myData.attrs['filename'] = myDataFile
         myCleanedData = self.cleanFile(myData)
@@ -123,6 +125,7 @@ class Cleaner:
                 if changePositionFlag:
                     jobObject.seniorityLevel = list(currPositionDict.keys())[0]
                 
+                jobObject.location = self.cleanLocation(self.fileLocation)
                 # Save new object to dataframe
                 self.saveJobObject(jobObject, df, i)
 
@@ -146,6 +149,14 @@ class Cleaner:
 
         descriptionString = filtered_data_to_go_back_into_df
         return descriptionString
+
+    def cleanLocation(self, filePath):
+        locations = ["Singapore", "Russia", "China", "USA"]
+        for location in locations:
+            if location in filePath:
+                return location
+    
+        return ""
 
     def languageDetect(self, detectlanguage):
         try:
@@ -193,5 +204,5 @@ class Cleaner:
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = r"../data/rawData/China/Mid-Senior/2021_10_10_15_21_Sales_dataFile.csv"
+    myDataFile = r"../data/rawData/USA/Mid-Senior/2021_10_09_14_59_Sales_dataFile.csv"
     myCleaner.startCleaner(myDataFile)
