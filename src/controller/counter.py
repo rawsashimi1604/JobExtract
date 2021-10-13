@@ -17,10 +17,9 @@ class Counter:
 
     def getExportLocation(self, dataFilePath):
         myFile = dataFilePath.split("/")[-1]
-        location = dataFilePath.split("/")[-3]
         myFile = myFile.replace(".csv", "")
-        myFile += "_keywords.csv"
-        myFile = location.upper() + "_" + myFile
+        myFile = "KEYWORDS" + "_" + myFile + ".csv"
+
         return f"../data/keywords/{myFile}"
 
     def cleanDataframe(self, dataFilePath):
@@ -48,7 +47,7 @@ class Counter:
             if word in keywordsDependence:
                 kwObject = KeywordsModel(
                     word, keywordsDict[word], "dependence")
-            else:
+            elif word in keywordsIndependence:
                 kwObject = KeywordsModel(
                     word, keywordsDict[word], "independence")
 
@@ -76,6 +75,6 @@ class Counter:
 
 if __name__ == "__main__":
     myCounter = Counter()
-    myFile = r"../data/cleanedData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+    myFile = r"../data/mergedData/AllCountries_All_Data.csv"
     myCounter.exportToCSV(myFile)
 
