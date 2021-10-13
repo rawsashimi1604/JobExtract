@@ -64,15 +64,13 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 - Components:
   - ~~**Data Crawling** - 27 Sept~~
     - ~~Selenium~~
-  - **Data Cleaning** - 6 Oct
-    - Text Mining
-    - TextBlob (Detecting English Job Descriptions)
-    - NLTK
-    - spaCy
-    - Gensim
-  - **Data Analysis** - 10 Oct
+  - ~~**Data Cleaning** - 6 Oct~~
+    - ~~Lang Detect~~
+    - ~~NLTK~~
+  - **Data Analysis** - 14 Oct
     - Seaborn
     - Matplotlib
+  - **GUI** - 14 Oct
 
 ## Structure
 
@@ -83,12 +81,15 @@ Files are split into 2 folders, src and venv. **DO NOT ADD OR REMOVE FILES IN TH
       |_ ...
     src
       |_ controller (all logic related code)
-      |_ models (data)
+          |_ models (data objects)
+      |_ data
           |_ cleanedData
               |_ (cleaned data files...)
           |_ rawData
               |_ (raw data files...)
-      |_ views (analysis)
+          |_ keywords
+              |_ (keywords data files...)
+      |_ views (analysis and GUI)
       |_ misc (misc code)
     README.md
     requirements.txt (used to install modules in venv)

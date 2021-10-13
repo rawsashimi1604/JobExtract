@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+from models.keywordsLook import KeywordsLookModel
 from models.keywords import KeywordsModel
 
 
@@ -15,47 +17,64 @@ class Counter:
 
     def getExportLocation(self, dataFilePath):
         myFile = dataFilePath.split("/")[-1]
-        location = dataFilePath.split("/")[-3]
         myFile = myFile.replace(".csv", "")
-        myFile += "_keywords.csv"
-        myFile = location.upper() + "_" + myFile
+        myFile = "KEYWORDS" + "_" + myFile + ".csv"
+
         return f"../data/keywords/{myFile}"
 
-    def exportToCSV(self, dataFilePath):
+    def cleanDataframe(self, dataFilePath):
         df = pd.read_csv(dataFilePath)
+        keywordsLookModel = KeywordsLookModel()
+        # Keywords to search
+        keywordsList = keywordsLookModel.allKeywords
+        keywordsDependence = keywordsLookModel.dependenceKeywords
+        keywordsIndependence = keywordsLookModel.independenceKeywords
+
         descriptions = df['description']
 
-        keywordsModel = KeywordsModel()
-        keywordsList = keywordsModel.allKeywords
+        # list of words and their count
         keywordsDict = {k: 0 for k in keywordsList}
         for description in descriptions:
             keywordsDict = self.updateKeywordsDict(
                 keywordsList, description, keywordsDict)
 
-        # Create pandas series using dictionary, convert to dataframe
-        keywordsSeries = pd.Series(data=keywordsDict)
-        keywordsDf = keywordsSeries.to_frame()
+        npShape = np.zeros(shape=(len(keywordsList), 3))
+        myOutputDf = pd.DataFrame(
+            npShape, columns=["keyword", "count", "type_"], dtype=str)
+        # Add object to dataframe
+        count = 0
+        for word in list(keywordsDict.keys()):
+            if word in keywordsDependence:
+                kwObject = KeywordsModel(
+                    word, keywordsDict[word], "dependence")
+            elif word in keywordsIndependence:
+                kwObject = KeywordsModel(
+                    word, keywordsDict[word], "independence")
 
-        # Create columns
-        keywordsDf['keywords'] = keywordsDf.index
-        keywordsDf.rename({0: "count"}, axis=1, inplace=True)
+            self.saveKeywordObject(kwObject, myOutputDf, count)
+            count += 1
 
-        # Rearrange columns
-        keywordsDf = keywordsDf[["keywords", "count"]]
+        # clean dataframe
+        for i in range(len(myOutputDf.index)):
+            if myOutputDf["keyword"][i] == "0.0":
+                myOutputDf.drop(i, axis=0, inplace=True)
 
-        # Export to directory path
+        return myOutputDf
+
+    def exportToCSV(self, dataFilePath):
+        df = self.cleanDataframe(dataFilePath)
         myDirPath = self.getExportLocation(dataFilePath)
-        keywordsDf.to_csv(myDirPath, index=False)
+        df.to_csv(myDirPath, index=False)
+
+    def saveKeywordObject(self, keywordObject, dataframe, index):
+        keywordObject.updateValues()
+        for i in range(len(keywordObject.parameters)):
+            dataframe[keywordObject.parameters[i]
+                      ][index] = keywordObject.objectValues[i]
 
 
 if __name__ == "__main__":
     myCounter = Counter()
-    myFile = r"../data/cleanedData/Singapore/All/2021_09_29_21_34_Sales_dataFile.csv"
+    myFile = r"../data/mergedData/AllCountries_All_Data.csv"
     myCounter.exportToCSV(myFile)
 
-# keywords_singapore
-# keywords_usa
-# keywords_russia
-# keywords_china
-
-# Singapore Excel file
