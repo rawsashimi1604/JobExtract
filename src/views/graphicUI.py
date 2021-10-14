@@ -68,7 +68,7 @@ class GUI:
             frame2,
             text='Start Crawling Data!',
             background = "#cfcfcf",
-            command= self.startCrawler
+            command= partial(self.startCrawler)
         )
         github_button = tk.Button(
             frame2,
@@ -147,6 +147,7 @@ class GUI:
         # myCrawler.selectPositionLevel("Associate")
         # myCrawler.getJobInfo(1000)
         os.system("py ../controller/crawler.py")
+
 
 
     def pandas_GUI(self, df =''):
