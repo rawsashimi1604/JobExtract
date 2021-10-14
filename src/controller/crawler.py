@@ -1,3 +1,4 @@
+from __future__ import annotations
 from selenium import webdriver
 from selenium.common import exceptions
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -20,20 +21,20 @@ from random import uniform
 
 class Crawler:
     '''
-        Crawler Module. Contains Crawler Object, used for crawling data from sg.linkedin.com
+        Crawler object, used for crawling data from sg.linkedin.com
         Requires Google Chrome Web Driver to use.
         Put WebDriver into PATH Environment before using.
 
         Class Attributes:
             None
     '''
-    def __init__(self) -> None:
+    def __init__(self) -> Crawler:
         '''
             Constructor for Crawler Class.
             Parameters:
                 None
             Returns:
-                None
+                Crawler => Constructs Crawler Class
         '''
         # Measure time
         self.start = time.time()
@@ -127,7 +128,7 @@ class Crawler:
         '''
         return rf"../data/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
 
-    def makeFileDirectory(self):
+    def makeFileDirectory(self) -> None:
         '''
             Creates file directory if directory does not exist
             Parameters:
@@ -138,7 +139,7 @@ class Crawler:
         path = Path(f"../data/rawData/{self.location}/{self.positionLevel}/")
         path.mkdir(parents=True, exist_ok=True)
 
-    def moveToNextJob(self):
+    def moveToNextJob(self) -> None:
         '''
             Instructs crawler to move browser position to next job
             Parameters:
