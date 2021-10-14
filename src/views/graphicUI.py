@@ -6,6 +6,11 @@ import pandas as pd
 from pandasgui import show
 sys.path.append('../controller')
 import cleaner
+from tkinter import *
+import webbrowser
+import crawler
+import os
+
 
 class GUI:
     def __init__(self):
@@ -59,6 +64,18 @@ class GUI:
         # )
         canvas.create_window((0, 0), window=status_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
+        crawl_button = tk.Button(
+            frame2,
+            text='Start Crawling Data!',
+            background = "#cfcfcf",
+            command= self.startCrawler
+        )
+        github_button = tk.Button(
+            frame2,
+            text='GitHub',
+            background = "#cfcfcf",
+            command= partial(self.Open_git_Url)
+        )
         clean_button = tk.Button(
             frame2,
             text='Clean data file',
@@ -80,6 +97,8 @@ class GUI:
         # pandas_button.pack()
         clean_button.pack(side='left',padx=10)
         pandas_button.pack(side='left',padx=10)
+        crawl_button.pack(side='left',padx=10)
+        github_button.pack(side='left',padx=10)
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         window.mainloop()
@@ -122,9 +141,21 @@ class GUI:
                 error_status.pack(side='top')
             print(e)
         
+    def startCrawler(self):
+        # MyCrawler = crawler.Crawler()
+        # MyCrawler.searchJobs("Sales", "Singapore")
+        # myCrawler.selectPositionLevel("Associate")
+        # myCrawler.getJobInfo(1000)
+        os.system("py ../controller/crawler.py")
+
+
     def pandas_GUI(self, df =''):
         show(df)
+
+    def Open_git_Url(self):
+        webbrowser.open_new("https://github.com/rawsashimi1604/1002_LinkedIn")
 
 if __name__ == "__main__":
     myGUI = GUI()
     myGUI.startGUI()
+    
