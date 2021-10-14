@@ -142,11 +142,12 @@ class GUI:
             print(e)
         
     def startCrawler(self):
-        # MyCrawler = crawler.Crawler()
-        # MyCrawler.searchJobs("Sales", "Singapore")
-        # myCrawler.selectPositionLevel("Associate")
-        # myCrawler.getJobInfo(1000)
-        os.system("py ../controller/crawler.py")
+        MyCrawler = crawler.Crawler()
+        MyCrawler.searchJobs("Sales", "Singapore")
+        MyCrawler.selectPositionLevel("Associate")
+        MyCrawler.getJobInfo(1000)
+        MyCrawler.exitCrawler()
+        #os.system("py ../controller/crawler.py")
 
 
 
