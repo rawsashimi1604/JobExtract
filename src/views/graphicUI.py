@@ -61,7 +61,7 @@ class GUI:
         #     frame,
         #     text= "open pandas",
         #     command=show
-        # )
+        # ) 
         canvas.create_window((0, 0), window=status_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         crawl_button = tk.Button(
@@ -148,8 +148,6 @@ class GUI:
         MyCrawler.getJobInfo(1000)
         MyCrawler.exitCrawler()
         #os.system("py ../controller/crawler.py")
-
-
 
     def pandas_GUI(self, df =''):
         show(df)

@@ -11,11 +11,25 @@ import csv
 import sys
 from random import uniform
 
+"""
+    Crawler Module. Contains Crawler Object, used for crawling data from sg.linkedin.com
+    Requires Google Chrome Web Driver to use.
+    Put WebDriver into PATH Environment before using.
+"""
+
 
 class Crawler:
-    def __init__(self):
+    '''
+        Crawler Module. Contains Crawler Object, used for crawling data from sg.linkedin.com
+        Requires Google Chrome Web Driver to use.
+        Put WebDriver into PATH Environment before using.
+
+        Class Attributes:
+            None
+    '''
+    def __init__(self) -> None:
         '''
-            Initialize Crawler Class.
+            Constructor for Crawler Class.
             Parameters:
                 None
             Returns:
@@ -29,54 +43,100 @@ class Crawler:
         self.driver.maximize_window()
 
         self.positionLevel = "All"
-        self.location = "Singapore"
-        self.jobTitle = "Sales"
+        self.location = ""
+        self.jobTitle = ""
 
         self.crawlCount = 0
         self.errorCount = 0
         self.maxErrorCount = 30
 
+        self.positionsAvailable = [
+            "All",
+            "Internship",
+            "Entry",
+            "Associate",
+            "Mid-Senior",
+            "Director"
+        ]
+
     @staticmethod
-    def buffer(minseconds: float, maxseconds: float):
+    def buffer(minseconds: float, maxseconds: float) -> None:
         '''
-            Instructs Crawler sleep for x seconds
+            Instructs Crawler sleep for x seconds randomized between minseconds and maxseconds.
             Parameters:
-                "seconds" : int => Amount in seconds to sleep.
+                "minseconds" : float => Minimum amount in seconds to sleep.
+                "maxseconds" : float => Maximum amount in seconds to sleep.
             Returns:
                 None
         '''
         time.sleep(uniform(minseconds, maxseconds))
 
     @staticmethod
-    def dateTime():
+    def dateTime() -> str:
         '''
             Returns today's date and time
             Parameters:
                 None
             Returns:
-                None
+                str => Formatted string containing date and time.
         '''
         now = datetime.now()
         datetime_string = now.strftime("%Y_%m_%d_%H_%M")
 
         return datetime_string
 
-    def getFileName(self):
+    def startCrawler(self, job: str, location: str, seniorityLevel: str, count: int) -> None:
+        '''
+            Starts Web Crawler
+            Parameters:
+                job : str => Selects job title to scrape
+                location : str => Selects location to scrape
+                seniorityLevel : str => Selects job seniority level to scrape
+                Available Parameters:
+                    "All",
+                    "Internship",
+                    "Entry",
+                    "Associate",
+                    "Mid-Senior",
+                    "Director"
+                count : int => Number of jobs to search (maximum 1000)
+            Returns:
+                str => Formatted string containing date and time.
+        '''
+
+        if seniorityLevel not in self.positionsAvailable:
+            self.exitCrawler()
+            raise ValueError("Please select an available job position.")
+
+        if count > 1000:
+            self.exitCrawler()
+            raise ValueError("Please select a value less than 1000")
+
+        self.searchJobs(job, location)
+        self.selectPositionLevel(seniorityLevel)
+        self.getJobInfo(count)
+        self.exitCrawler()
+
+    def getFileName(self) -> str:
+        '''
+            Creates and returns CSV file name
+            Parameters:
+                None
+            Returns:
+                str => string path to save CSV file to
+        '''
         return rf"../data/rawData/{self.location}/{self.positionLevel}/{self.dateTime()}_{self.jobTitle}_dataFile.csv"
 
     def makeFileDirectory(self):
-        path = Path(f"../data/rawData/{self.location}/{self.positionLevel}/")
-        path.mkdir(parents=True, exist_ok=True)
-
-    def navigate(self, location: str):
         '''
-            Instructs crawler to Navigate to page.
+            Creates file directory if directory does not exist
             Parameters:
-                "location" : str => Place to navigate
+                None
             Returns:
                 None
         '''
-        pass
+        path = Path(f"../data/rawData/{self.location}/{self.positionLevel}/")
+        path.mkdir(parents=True, exist_ok=True)
 
     def moveToNextJob(self):
         '''
@@ -94,7 +154,7 @@ class Crawler:
 
         self.buffer(0.3, 0.5)
 
-    def moveErrorJob(self, previousSibling: WebElement, currentSibling: WebElement):
+    def moveErrorJob(self, previousSibling: WebElement, currentSibling: WebElement) -> None:
         '''
             Instructs crawler to move browser position back to previous job description, click it, then go back to current job description.
             Parameters:
@@ -122,7 +182,7 @@ class Crawler:
         currentSibling.click()
         self.buffer(0.3, 0.7)
 
-    def searchJobs(self, jobTitle: str, location: str):
+    def searchJobs(self, jobTitle: str, location: str) -> None:
         '''
             Instructs crawler to search jobs
             Parameters:
@@ -157,12 +217,13 @@ class Crawler:
         self.jobTitle = jobTitle
         self.location = location
 
-    def selectPositionLevel(self, position: str):
+    def selectPositionLevel(self, position: str) -> None:
         '''
             Instructs crawler to select position level
             Parameters:
                 "position" : str => Job Position Level
                 Available Parameters:
+                    "All",
                     "Internship",
                     "Entry",
                     "Associate",
@@ -171,14 +232,6 @@ class Crawler:
             Returns:
                 None
         '''
-        positionArray = [
-            "All",
-            "Internship",
-            "Entry",
-            "Associate",
-            "Mid-Senior",
-            "Director"
-        ]
 
         if position != "All":
             # Find the Experience Level <button> tag
@@ -213,7 +266,7 @@ class Crawler:
             # Set global instance var
             self.positionLevel = position
 
-    def getJobInfo(self, jobCount: int):
+    def getJobInfo(self, jobCount: int) -> None:
         '''
             Instructs crawler to scrape job description data
             Parameters:
@@ -308,7 +361,7 @@ class Crawler:
             # Close CSV File after writing to prevent memory leakage
             csvFile.close()
 
-    def getJobData(self):
+    def getJobData(self) -> dict:
         '''
             Instructs crawler to scrape job description data
             Parameters:
@@ -360,7 +413,7 @@ class Crawler:
 
         return dataDictionary
 
-    def tryToFindData(self):
+    def tryToFindData(self) -> bool:
         '''
             Instructs crawler to try to find job description data
             Parameters:
@@ -380,7 +433,14 @@ class Crawler:
         except StaleElementReferenceException:
             return False
 
-    def scrapeJobTitle(self, currentDiv: WebElement):
+    def scrapeJobTitle(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find jobTitle
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns jobTitle if found, else empty string
+        '''
         try:
             jobTitle = currentDiv.find_element_by_css_selector(
                 "h2[class='top-card-layout__title topcard__title']").text
@@ -389,7 +449,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeCompanyName(self, currentDiv: WebElement):
+    def scrapeCompanyName(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find companyName
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns companyName if found, else empty string
+        '''
         try:
             companyName = currentDiv.find_element_by_css_selector(
                 "a[data-tracking-control-name='public_jobs_topcard-org-name']").text
@@ -398,7 +465,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeLocation(self, currentDiv: WebElement):
+    def scrapeLocation(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find location
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns location if found, else empty string
+        '''
         try:
             location = currentDiv.find_element_by_css_selector(
                 "span[class='topcard__flavor topcard__flavor--bullet']").text
@@ -407,7 +481,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeDatePosted(self, currentDiv: WebElement):
+    def scrapeDatePosted(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find datePosted
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns datePosted if found, else empty string
+        '''
         try:
             datePosted = currentDiv.find_element_by_css_selector(
                 "span[class='posted-time-ago__text topcard__flavor--metadata']").text
@@ -423,7 +504,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeApplicantsStatus(self, currentDiv: WebElement):
+    def scrapeApplicantsStatus(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find applicantsStatus
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns applicantsStatus if found, else empty string
+        '''
         try:
             applicantsStatus = currentDiv.find_element_by_css_selector(
                 "figcaption[class='num-applicants__caption']").text
@@ -439,7 +527,14 @@ class Crawler:
             except NoSuchElementException:
                 return ""
 
-    def scrapeDescription(self, currentDiv: WebElement):
+    def scrapeDescription(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find description
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns description if found, else empty string
+        '''
         try:
             description = currentDiv.find_element_by_css_selector(
                 "div[class='show-more-less-html__markup']").text
@@ -448,7 +543,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeSeniorityLevel(self, currentDiv: WebElement):
+    def scrapeSeniorityLevel(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find seniorityLevel
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns seniorityLevel if found, else empty string
+        '''
         try:
             unorderedList = currentDiv.find_element_by_css_selector(
                 "ul[class='description__job-criteria-list']").find_elements_by_css_selector("li")
@@ -461,7 +563,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeEmploymentType(self, currentDiv: WebElement):
+    def scrapeEmploymentType(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find employmentType
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns employmentType if found, else empty string
+        '''
         try:
             unorderedList = currentDiv.find_element_by_css_selector(
                 "ul[class='description__job-criteria-list']").find_elements_by_css_selector("li")
@@ -474,7 +583,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeJobFunction(self, currentDiv: WebElement):
+    def scrapeJobFunction(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find jobFunction
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns jobFunction if found, else empty string
+        '''
         try:
             unorderedList = currentDiv.find_element_by_css_selector(
                 "ul[class='description__job-criteria-list']").find_elements_by_css_selector("li")
@@ -487,7 +603,14 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def scrapeIndustries(self, currentDiv: WebElement):
+    def scrapeIndustries(self, currentDiv: WebElement) -> str:
+        '''
+            Instructs crawler to find industries
+            Parameters:
+                currentDiv : WebElement => current <div> tag selected
+            Returns:
+                str => Returns industries if found, else empty string
+        '''
         try:
             unorderedList = currentDiv.find_element_by_css_selector(
                 "ul[class='description__job-criteria-list']").find_elements_by_css_selector("li")
@@ -500,9 +623,9 @@ class Crawler:
         except NoSuchElementException:
             return ""
 
-    def exitCrawler(self):
+    def exitCrawler(self) -> None:
         '''
-            Instructs crawler to exit and close browser.
+            Instructs crawler to exit and close browser, prints out statistics of crawling
             Parameters:
                 None
             Returns:
@@ -529,19 +652,5 @@ class Crawler:
 
 if __name__ == "__main__":
     myCrawler = Crawler()
-    # First arg => Job
-    # Second arg => Location
-    myCrawler.searchJobs("Sales", "Singapore")
+    myCrawler.startCrawler("Sales", "Singapore", "Internship", 1001)
 
-    # First arg => Position Levels
-    # Avail =>  [
-    #         "All",
-    #         "Internship",
-    #         "Entry",
-    #         "Associate",
-    #         "Mid-Senior",
-    #         "Director"
-    #     ]
-    myCrawler.selectPositionLevel("Mid-Senior")
-    myCrawler.getJobInfo(1000)
-    myCrawler.exitCrawler()
