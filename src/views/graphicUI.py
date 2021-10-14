@@ -143,10 +143,7 @@ class GUI:
         
     def startCrawler(self):
         MyCrawler = crawler.Crawler()
-        MyCrawler.searchJobs("Sales", "Singapore")
-        MyCrawler.selectPositionLevel("Associate")
-        MyCrawler.getJobInfo(1000)
-        MyCrawler.exitCrawler()
+        MyCrawler.startCrawler("Sales", "Singapore", "Internship", 1001)
         #os.system("py ../controller/crawler.py")
 
     def pandas_GUI(self, df =''):
