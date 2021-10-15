@@ -12,6 +12,9 @@
             Merger Module. Contains Merger Object, used for merging CSV files with identical columns
         counter.py: 
             Counter Module. Contains Counter Object, used for counting keywords in data, and returning a CSV file containg keywords and count
+        augmentor.py:
+            Augmentor Module. Contains Augmentor Object, augmenting new columns of data, mainly numerical to help with graph analysis.
+
 
     Additional Modules:
         models: 

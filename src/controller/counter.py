@@ -132,7 +132,6 @@ class Counter:
         df = self.cleanDataframe(dataFilePath)
         myDirPath = self.getExportLocation(dataFilePath)
         df.to_csv(myDirPath, index=False)
-
     
 
 
