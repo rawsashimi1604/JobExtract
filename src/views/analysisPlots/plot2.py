@@ -1,6 +1,7 @@
 import seaborn as sns
 import pandas as pd
 import numpy as np
+from numpy import median
 import matplotlib.pyplot as plt
 
 
@@ -89,3 +90,14 @@ def constructDataset():
 
 # Dataset (Plot 2)
 datasetDataframe = constructDataset()
+# print(datasetDataframe)
+dependence = datasetDataframe.dependence
+independence = datasetDataframe.independence
+sns.set_theme(style="whitegrid")
+plot2=sns.barplot(x=(datasetDataframe.seniorityLevel),y=(datasetDataframe.seniorityCount),
+# hue=[dependence,independence],
+data = datasetDataframe)
+# plot2.set_xticklabels(plot2.get_xticklabels(), rotation=50)
+plt.show()
+
+ 

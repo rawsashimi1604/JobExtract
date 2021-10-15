@@ -90,3 +90,34 @@ def constructDataset():
 
 # Dataset (Plot 4)
 datasetDataframe = constructDataset()
+# print(datasetDataframe)
+ 
+# sns.set_theme(style="ticks")
+# plot4_1=sns.lmplot(x=(datasetDataframe.seniorityLevel), y=(datasetDataframe.seniorityCount),
+# data=datasetDataframe)
+
+# # plot4_2=sns.lmplot(x=(datasetDataframe.seniorityLevel), y=(datasetDataframe.dependance),
+# data=datasetDataframe) scatter_kws={"s": 50, "alpha": 1})
+
+
+# plot4_3=sns.lmplot(x=(datasetDataframe.seniorityLevel), y=(datasetDataframe.independance),
+# data=datasetDataframe)
+
+### PAIR PLOT
+
+
+
+# Load the  dataset
+df = datasetDataframe
+
+sns.set_theme()
+# Plot sepal width as a function of sepal_length across days
+g = sns.lmplot(
+    data=df,
+    x=df.dependence, y=df.independence, hue="seniorityLevel",
+    height=5
+)
+
+# Use more informative axis labels than are provided by default
+# g.set_axis_labels("Snoot length (mm)", "Snoot depth (mm)")
+plt.show() 
