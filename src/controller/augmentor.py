@@ -70,11 +70,14 @@ class Augmentor:
                 float => Ratio of occurence to word list
         '''
         count = 0
-        for word in set(description.split(" ")):
+        descriptionList =  description.split(" ")
+        for word in set(descriptionList):
             if word in wordList:
                 count += 1
         
-        return round(count / len(wordList), 2)
+        # Scale based on number of words appearing in description
+        val = ((count / len(wordList)) / len(descriptionList)) * 100
+        return val
 
     def augment(self) -> None:
         '''
@@ -90,5 +93,5 @@ class Augmentor:
 
 
 if __name__ == "__main__":
-    myAugmentor = Augmentor("../data/mergedData/USA_All_Data.csv")
+    myAugmentor = Augmentor("../data/mergedData/AllCountries_All_Data.csv")
     myAugmentor.augment()

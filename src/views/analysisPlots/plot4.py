@@ -92,6 +92,7 @@ df = pd.read_csv("../../data/augmentedData/AllCountries_All_Data.csv")
 # sns.boxplot(x="seniorityLevel", y="independenceRatio", data=df, order=["Internship", "Entry level", "Associate", "Mid-Senior level", "Director"])
 # sns.boxplot(x="location", y="independenceRatio", data=df, order=["Singapore", "USA", "China" , "Russia"])
 # sns.boxplot(x="employmentType", y="independenceRatio", data=df)
-
-
+g = sns.lmplot(data=df, x="dependenceRatio", y="independenceRatio", hue="location")
+g.set_axis_labels("Dependence Ratio", "Independence Ratio")
+plt.title("Relation between dependence and independence")
 plt.show()
