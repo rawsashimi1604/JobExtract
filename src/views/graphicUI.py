@@ -20,6 +20,9 @@ class GUI:
         window = tk.Tk()
         window.title("LinkedIn Data Cleaner")
         window.configure(background='#ADD8E6', pady = "20", padx ="10", height= 600, width=800)
+        option = StringVar()
+        option.set("All")
+        
         frame = tk.Frame(
             window,
             height=400,
@@ -30,6 +33,18 @@ class GUI:
             frame,
             # width=600,
             # height=100,
+            bg="#ADD8E6"
+        )
+        frame3 =tk.Frame(
+            frame,
+            bg="#ADD8E6"
+        )
+        frame4 =tk.Frame(
+            frame,
+            bg="#ADD8E6"
+        )
+        frame5 =tk.Frame(
+            frame,
             bg="#ADD8E6"
         )
         greeting = tk.Label(
@@ -65,19 +80,19 @@ class GUI:
         canvas.create_window((0, 0), window=status_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         crawl_button = tk.Button(
-            frame2,
+            frame5,
             text='Start Crawling Data!',
             background = "#cfcfcf",
-            command= partial(self.startCrawler)
+            command= self.startCrawler
         )
         github_button = tk.Button(
-            frame2,
+            frame5,
             text='GitHub',
             background = "#cfcfcf",
             command= partial(self.Open_git_Url)
         )
         clean_button = tk.Button(
-            frame2,
+            frame5,
             text='Clean data file',
             background = "#cfcfcf",
             command= partial(self.startCleaner,status_frame)
@@ -85,20 +100,120 @@ class GUI:
         # for i in range (50):
         #     tk.Label(status_frame, text="Sample scrolling label").pack()
         pandas_button = tk.Button(
-            frame2,
+            frame5,
             text='Open Pandas excel file reader',
             background = "#cfcfcf",
             command = self.pandas_GUI
         )
-        frame2.pack(side='top')
+        lbljobs = tk.Label(
+            frame2,
+            text='Enter Job: ',
+            background= "#ADD8E6"
+        )
+        input_job = tk.Entry(
+            frame2,
+            font=30
+            
+        )
+        lblcountry = tk.Label(
+            frame2,
+            text='Enter Country: ',
+            background= "#ADD8E6"
+        )
+        input_country = tk.Entry(
+            frame2,
+            font=30
+        )
+        lbllevel = tk.Label(
+            frame3,
+            text='Please pick a Seniority Level: ',
+            background= "#ADD8E6"
+        )
+        rb_all = tk.Radiobutton(
+            frame3,
+            text="All",
+            background= "#ADD8E6",
+            value="All",
+            var=option
+        )
+        rb_associate = tk.Radiobutton(
+            frame3,
+            text="Associate",
+            background= "#ADD8E6",
+            value="Associate",
+            var=option
+        )
+        rb_director = tk.Radiobutton(
+            frame3,
+            text="Director",
+            background= "#ADD8E6",
+            value="Director",
+            var=option
+        )
+        rb_entry = tk.Radiobutton(
+            frame3,
+            text="Entry",
+            background= "#ADD8E6",
+            value="Entry",
+            var=option
+        )
+        rb_internship = tk.Radiobutton(
+            frame3,
+            text="Internship",
+            background= "#ADD8E6",
+            value="Internship",
+            var=option
+
+        )
+        rb_mid_senior = tk.Radiobutton(
+            frame3,
+            text="Mid-Senior",
+            background= "#ADD8E6",
+            value="Mid-Senior",
+            var=option
+        )
+        lblnumber = lbllevel = tk.Label(
+            frame4,
+            text='Please enter the number of data to be crawled:',
+            background= "#ADD8E6"
+        )
+        input_number = tk.Entry(
+            frame4,
+            font=30
+        )
+
+
+        frame2.pack(side='top',pady=5)
+        frame3.pack(side='top')
+        frame4.pack(side='top')
+        frame5.pack(side='top')
         frame.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.8)
+        # rb_associate.deselect()
+        # rb_director.deselect()
+        # rb_entry.deselect()
+        # rb_internship.deselect()
+        # rb_mid_senior.deselect()
         
-        greeting.pack()
+        greeting.pack(pady=2)
+        lbljobs.pack(side='left')
+        input_job.pack(side='left',padx=10)
+        lblcountry.pack(side="left")
+        input_country.pack(side='left',padx=10)
+        lbllevel.pack()
+        rb_all.pack(side='left',padx=10)
+        rb_associate.pack(side='left',padx=10)
+        rb_director.pack(side='left',padx=10)
+        rb_entry.pack(side='left',padx=10)
+        rb_internship.pack(side='left',padx=10)
+        rb_mid_senior.pack(side='left',padx=10)
+        lblnumber.pack(side='left')
+        input_number.pack(side='left',padx=10)
+
         # pandas_button.pack()
-        clean_button.pack(side='left',padx=10)
-        pandas_button.pack(side='left',padx=10)
-        crawl_button.pack(side='left',padx=10)
-        github_button.pack(side='left',padx=10)
+        clean_button.pack(side='left',padx=10,pady=5)
+        pandas_button.pack(side='left',padx=10,pady=5)
+        crawl_button.pack(side='left',padx=10,pady=5)
+        github_button.pack(side='left',padx=10,pady=5)
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         window.mainloop()
@@ -143,8 +258,20 @@ class GUI:
         
     def startCrawler(self):
         MyCrawler = crawler.Crawler()
-        MyCrawler.startCrawler("Sales", "Singapore", "Internship", 1001)
+        MyCrawler.startCrawler("Sales", "Singapore", "Entry", 10)
         #os.system("py ../controller/crawler.py")
+    def get_job(self):
+        job = input_job.get(1.0, "end-1c")
+        print(job)
+    def get_country(self):
+        country = input_country.get(1.0, "end-1c")
+        print(country)
+    def get_number(self):
+        number = int(input_number.get(1.0, "end-1c"))
+        print(number)
+
+
+
 
     def pandas_GUI(self, df =''):
         show(df)
