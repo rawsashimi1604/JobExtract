@@ -10,6 +10,9 @@ from tkinter import *
 import webbrowser
 import crawler
 import os
+import merger
+import counter
+import augmentor
 
 
 class GUI:
@@ -50,6 +53,14 @@ class GUI:
             frame,
             bg="#ADD8E6"
         )
+        frame6 =tk.Frame(
+            frame,
+            bg="#ADD8E6"
+        )
+        frame7 =tk.Frame(
+            frame,
+            bg="#ADD8E6"
+        )
         greeting = tk.Label(
             frame2,
             text='Welcome to LinkedIn cleaner bot!',
@@ -83,19 +94,19 @@ class GUI:
         canvas.create_window((0, 0), window=status_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         crawl_button = tk.Button(
-            frame5,
+            frame6,
             text='Start Crawling Data!',
             background = "#cfcfcf",
             command= partial(self.startCrawler,job_str,country_str,option,number_str)
         )
         github_button = tk.Button(
-            frame5,
+            frame6,
             text='GitHub',
             background = "#cfcfcf",
             command= partial(self.Open_git_Url)
         )
         clean_button = tk.Button(
-            frame5,
+            frame6,
             text='Clean data file',
             background = "#cfcfcf",
             command= partial(self.startCleaner,status_frame)
@@ -103,7 +114,7 @@ class GUI:
         # for i in range (50):
         #     tk.Label(status_frame, text="Sample scrolling label").pack()
         pandas_button = tk.Button(
-            frame5,
+            frame6,
             text='Open Pandas excel file reader',
             background = "#cfcfcf",
             command = self.pandas_GUI
@@ -131,39 +142,39 @@ class GUI:
         )
         lbllevel = tk.Label(
             frame3,
-            text='Please pick a Seniority Level: ',
-            background= "#ADD8E6"
+            text='Pick a Seniority Level: ',
+            background="#ADD8E6"
         )
         rb_all = tk.Radiobutton(
-            frame3,
+            frame4,
             text="All",
             background= "#ADD8E6",
             value="All",
             var=option
         )
         rb_associate = tk.Radiobutton(
-            frame3,
+            frame4,
             text="Associate",
             background= "#ADD8E6",
             value="Associate",
             var=option
         )
         rb_director = tk.Radiobutton(
-            frame3,
+            frame4,
             text="Director",
             background= "#ADD8E6",
             value="Director",
             var=option
         )
         rb_entry = tk.Radiobutton(
-            frame3,
+            frame4,
             text="Entry",
             background= "#ADD8E6",
             value="Entry",
             var=option
         )
         rb_internship = tk.Radiobutton(
-            frame3,
+            frame4,
             text="Internship",
             background= "#ADD8E6",
             value="Internship",
@@ -171,28 +182,55 @@ class GUI:
 
         )
         rb_mid_senior = tk.Radiobutton(
-            frame3,
+            frame4,
             text="Mid-Senior",
             background= "#ADD8E6",
             value="Mid-Senior",
             var=option
         )
         lblnumber = lbllevel = tk.Label(
-            frame4,
+            frame5,
             text='Please enter the number of data to be crawled:',
             background= "#ADD8E6"
         )
         input_number = tk.Entry(
-            frame4,
+            frame5,
             font=30,
             textvariable=number_str
         )
+        Merge_button = tk.Button(
+            frame7,
+            text='Merge Data',
+            background = "#cfcfcf",
+            command= self.startMerging
+        )
+        count_button = tk.Button(
+            frame7,
+            text='Count data',
+            background = "#cfcfcf",
+            command=self.startCounting
+        )
+        augment_button = tk.Button(
+            frame7,
+            text='Augment Data',
+            background = "#cfcfcf",
+            command= self.startAugmenting
+        )
+        clear_button = tk.Button(
+            frame7,
+            text='Clear All Input',
+            background = "#cfcfcf",
+            command=partial(self.clear_all,input_job,input_country,option,input_number)
+        )
+
 
 
         frame2.pack(side='top',pady=5)
-        frame3.pack(side='top')
+        frame3.pack(side='top',pady = 10)
         frame4.pack(side='top')
         frame5.pack(side='top')
+        frame6.pack(side='top')
+        frame7.pack(side='top')
         frame.place(relx=0.1, rely=0.1, relwidth=0.8, relheight=0.8)
         # rb_associate.deselect()
         # rb_director.deselect()
@@ -200,12 +238,12 @@ class GUI:
         # rb_internship.deselect()
         # rb_mid_senior.deselect()
         
-        greeting.pack(pady=2)
+        greeting.pack(pady=10)
         lbljobs.pack(side='left')
         input_job.pack(side='left',padx=10)
         lblcountry.pack(side="left")
         input_country.pack(side='left',padx=10)
-        lbllevel.pack()
+        # lbllevel.pack(pady=10) this label refuse to appear
         rb_all.pack(side='left',padx=10)
         rb_associate.pack(side='left',padx=10)
         rb_director.pack(side='left',padx=10)
@@ -220,6 +258,11 @@ class GUI:
         pandas_button.pack(side='left',padx=10,pady=5)
         crawl_button.pack(side='left',padx=10,pady=5)
         github_button.pack(side='left',padx=10,pady=5)
+        Merge_button.pack(side='left',padx=10,pady=5)
+        count_button.pack(side='left',padx=10,pady=5)
+        augment_button.pack(side='left',padx=10,pady=5)
+        clear_button.pack(side='left',padx=10,pady=5)
+
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         # startCrawling = partial(self.startCrawler,job_str,country_str,option,number_str)
@@ -231,6 +274,23 @@ class GUI:
         return filename
         # self.filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
         # self.startCleaner()
+    def startMerging(self):
+        filename = self.chooseDirectory()
+        myMerger = merger.Merger()
+        merge_all = myMerger.merging_all_files(*filename)
+        myMerger.createNewFile(merge_all,"New_Merge_file")
+    
+    def startCounting(self):
+        filename = self.chooseDirectory()
+        myCounter = counter.Counter()
+        myCounter.exportToCSV(filename)
+
+    def startAugmenting(self):
+        filename = self.chooseDirectory()
+        myAugmentor = augmentor.Augmentor(filename)
+        myAugmentor.augment()
+
+
 
     def startCleaner(self,status_frame):
         filename = ''
@@ -264,12 +324,18 @@ class GUI:
             print(e)
         
     def startCrawler(self,job,country,level,amount):
-        MyCrawler = crawler.Crawler()
+        myCrawler = crawler.Crawler()
         job_get = (job.get())
         country_get = (country.get())
         level_get = (level.get())
         amount_get = (amount.get())
-        MyCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
+        myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
+    
+    def clear_all(self, job,country,level,amount):
+        job.delete(0,END)
+        country.delete(0,END)
+        level.set("All")
+        amount.delete(0,END)
 
         #os.system("py ../controller/crawler.py")
     # def get_job(self):
