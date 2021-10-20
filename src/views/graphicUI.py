@@ -21,6 +21,9 @@ class GUI:
         window.title("LinkedIn Data Cleaner")
         window.configure(background='#ADD8E6', pady = "20", padx ="10", height= 600, width=800)
         option = StringVar()
+        job_str = StringVar()
+        country_str = StringVar()
+        number_str = StringVar()
         option.set("All")
         
         frame = tk.Frame(
@@ -83,7 +86,7 @@ class GUI:
             frame5,
             text='Start Crawling Data!',
             background = "#cfcfcf",
-            command= self.startCrawler
+            command= partial(self.startCrawler,job_str,country_str,option,number_str)
         )
         github_button = tk.Button(
             frame5,
@@ -112,7 +115,8 @@ class GUI:
         )
         input_job = tk.Entry(
             frame2,
-            font=30
+            font=30,
+            textvariable=job_str
             
         )
         lblcountry = tk.Label(
@@ -122,7 +126,8 @@ class GUI:
         )
         input_country = tk.Entry(
             frame2,
-            font=30
+            font=30,
+            textvariable=country_str
         )
         lbllevel = tk.Label(
             frame3,
@@ -179,7 +184,8 @@ class GUI:
         )
         input_number = tk.Entry(
             frame4,
-            font=30
+            font=30,
+            textvariable=number_str
         )
 
 
@@ -216,6 +222,7 @@ class GUI:
         github_button.pack(side='left',padx=10,pady=5)
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+        # startCrawling = partial(self.startCrawler,job_str,country_str,option,number_str)
         window.mainloop()
 
     def chooseDirectory(self):
@@ -256,19 +263,24 @@ class GUI:
                 error_status.pack(side='top')
             print(e)
         
-    def startCrawler(self):
+    def startCrawler(self,job,country,level,amount):
         MyCrawler = crawler.Crawler()
-        MyCrawler.startCrawler("Sales", "Singapore", "Entry", 10)
+        job_get = (job.get())
+        country_get = (country.get())
+        level_get = (level.get())
+        amount_get = (amount.get())
+        MyCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
+
         #os.system("py ../controller/crawler.py")
-    def get_job(self):
-        job = input_job.get(1.0, "end-1c")
-        print(job)
-    def get_country(self):
-        country = input_country.get(1.0, "end-1c")
-        print(country)
-    def get_number(self):
-        number = int(input_number.get(1.0, "end-1c"))
-        print(number)
+    # def get_job(self):
+    #     job = input_job.get(1.0, "end-1c")
+    #     print(job)
+    # def get_country(self):
+    #     country = input_country.get(1.0, "end-1c")
+    #     print(country)
+    # def get_number(self):
+    #     number = int(input_number.get(1.0, "end-1c"))
+    #     print(number)
 
 
 
