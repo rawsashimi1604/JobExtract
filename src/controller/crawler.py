@@ -653,5 +653,5 @@ class Crawler:
 
 if __name__ == "__main__":
     myCrawler = Crawler()
-    myCrawler.startCrawler("Sales", "Singapore", "Internship", 1001)
+    myCrawler.startCrawler("Sales", "Singapore", "Internship", 5)
 

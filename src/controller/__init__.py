@@ -14,6 +14,8 @@
             Counter Module. Contains Counter Object, used for counting keywords in data, and returning a CSV file containg keywords and count
         augmentor.py:
             Augmentor Module. Contains Augmentor Object, augmenting new columns of data, mainly numerical to help with graph analysis.
+        processor.py:
+            Processor Module. Contains Processor Object, used for processing raw data into processed data.
 
 
     Additional Modules:
