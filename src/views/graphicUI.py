@@ -20,6 +20,7 @@ from tkinter import messagebox
 class GUI:
     def __init__(self, window):
         self.window = window
+        self.log_text = tk.Text()
         self.seniority_option = StringVar()
         self.clean_option = StringVar()
         self.job_str = StringVar()
@@ -30,17 +31,22 @@ class GUI:
         self.crawler_open = False
         self.cleaner_open = False
         self.background_color = "#ADD8E6"
+        self.success_tag = "success"
+        self.error_tag = "error"
 
     def startGUI(self):
         window = self.window
         background_color = self.background_color
         self.seniority_option.set("All")
         self.clean_option.set("all")
+        jobExtract_logo = PhotoImage(file="../../images/jobExtractLogo.png")
+        jobExtract_logo_resized = jobExtract_logo.subsample(3,3)
+        jobExtract_logo_resized_window = jobExtract_logo.subsample(10,10)
+        github_logo = PhotoImage(file="../../images/github-logo.png")
+        github_logo_resized = github_logo.subsample(30,40)
         frame = tk.Frame(
             window,
-            height=400,
-            width=600,
-            bg = background_color
+            bg = background_color,
         )
         frame2 = tk.Frame(
             frame,
@@ -57,6 +63,7 @@ class GUI:
             frame2,
             text='Welcome to LinkedIn cleaner bot!',
             background= background_color,
+            image=jobExtract_logo_resized
         )
         canvas = tk.Canvas(
             frame,
@@ -66,18 +73,22 @@ class GUI:
             orient='vertical',
             command=canvas.yview,
         )
-        status_frame = tk.Frame(
+        log_frame = tk.Frame(
             canvas,
-            height=350,
-            width=450,
         )
-        status_frame.bind(
+        self.log_text = tk.Text(
+            log_frame,
+        )
+        self.log_text.tag_config('black', foreground="black")
+        self.log_text.tag_config('success', foreground="green")
+        self.log_text.tag_config("error", foreground="red")
+        log_frame.bind(
             "<Configure>",
             lambda e: canvas.configure(
                 scrollregion=canvas.bbox("all")
             )
         )
-        canvas.create_window((0, 0), window=status_frame, anchor="nw")
+        canvas.create_window((0, 0), window=log_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         crawl_button = tk.Button(
             frame2,
@@ -87,50 +98,28 @@ class GUI:
         )
         github_button = tk.Button(
             frame2,
-            text='GitHub',
+            text=' GitHub',
             background = "#cfcfcf",
-            command= partial(self.Open_git_Url)
+            command= partial(self.Open_git_Url),
+            image=github_logo_resized,
+            compound="left"
         )
         clean_button = tk.Button(
             frame2,
-            text='Clean data file',
+            text='Clean Data File',
             background = "#cfcfcf",
             command= partial(self.cleanerGUI,frame3)
         )
         pandas_button = tk.Button(
             frame2,
-            text='Open Pandas excel file reader',
+            text='Open Pandas Excel File Reader',
             background = "#cfcfcf",
             command = self.pandas_GUI
         )
-        # Merge_button = tk.Button(
-        #     frame7,
-        #     text='Merge Data',
-        #     background = "#cfcfcf",
-        #     command= self.startMerging
-        # )
-        # count_button = tk.Button(
-        #     frame7,
-        #     text='Count data',
-        #     background = "#cfcfcf",
-        #     command=self.startCounting
-        # )
-        # augment_button = tk.Button(
-        #     frame7,
-        #     text='Augment Data',
-        #     background = "#cfcfcf",
-        #     command= self.startAugmenting
-        # )
-        # clear_button = tk.Button(
-        #     frame7,
-        #     text='Clear All Input',
-        #     background = "#cfcfcf",
-        #     command=partial(self.clear_all,input_job,input_country,self.option,input_number)
-        # )
         frame.place(relx=0.1, relwidth=0.8, relheight=0.9)
         frame2.pack(side='top',pady=5)
         frame3.pack(side='top',pady=10)
-        greeting.pack(pady=10)
+        greeting.pack(side='top',pady=10)
         crawl_button.pack(side='left',padx=10,pady=5)
         clean_button.pack(side='left',padx=10,pady=5)
         pandas_button.pack(side='left',padx=10,pady=5)
@@ -140,10 +129,11 @@ class GUI:
         # augment_button.pack(side='left',padx=10,pady=5)
         # clear_button.pack(side='left',padx=10,pady=5)
         canvas.pack(side="left", fill="both", expand=True)
+        self.log_text.pack(side='top')
         scrollbar.pack(side="right", fill="y")
         # startCrawling = partial(self.startCrawler,job_str,country_str,option,number_str)
         window.mainloop()
-    
+
     def crawlerGUI(self,parent_frame):
         if self.crawler_open:
             self.crawler_open = False
@@ -353,12 +343,14 @@ class GUI:
         else:
             args[0].config(state="disabled")
 
+    def write_log(self,text, tag='black'):
+        self.log_text.insert(INSERT,text+"\n",tag)
+
     def chooseDirectory(self):
         cwd = getcwd()
         filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
         return filename
-        # self.filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
-        # self.startCleaner()
+
     def startMerging(self):
         filename = self.chooseDirectory()
         myMerger = merger.Merger()
@@ -380,39 +372,18 @@ class GUI:
         if clean_option == "single":
             filename = ''
             filename = self.chooseDirectory()
+            self.write_log("Cleaning " + filename + ". Please wait...")
             myProcessor = processor.Processor(format=clean_option,manualFilePath=filename)
+            self.write_log(filename + " successfully cleaned", self.success_tag)
         else:
+            if clean_option == "all":
+                self.writelog("Cleaning all files. Please wait...")
+            else:
+                self.writelog("Cleaning all latest files. Please wait...")
             myProcessor  = processor.Processor(format=clean_option)
+            self.write_log("Files successfully cleaned", self.success_tag)
         myProcessor.process()
-        # try:
-        #     filename = self.chooseDirectory()
-        #     myCleaner = cleaner.Cleaner()
-        #     myCleaner.startCleaner(filename)
-        #     cleaning_text = 'Successfully cleaned {}'.format(filename)
-        #     cleaning_status = tk.Label(
-        #         status_frame,
-        #         text=cleaning_text,
-        #         fg='green',
-        #         wraplength=550,
-        #         justify='left'
-        #     )
-        #     cleaning_status.pack(side='top')
-        #     cleaned_filename = myCleaner.makeCleanedDataFileDirectory(filename)
-        #     df = pd.read_csv(cleaned_filename)
-        #     self.pandas_GUI(df)
-        #     # status_text.insert('1.0', cleaning_text)
-        # except (KeyError, AttributeError) as e:
-        #     if len(filename) > 0:
-        #         error_status = tk.Label(
-        #             status_frame,
-        #             text= 'Error when cleaning file {}'.format(filename),
-        #             fg = 'red',
-        #             wraplength=550,
-        #             justify='left'
-        #         )
-        #         error_status.pack(side='top')
-        #     print(e)
-        
+
     def startCrawler(self):
         job_get = (self.job_str.get())
         country_get = (self.country_str.get())
@@ -423,39 +394,26 @@ class GUI:
         elif not all(c.isalpha() or c.isspace() for c in country_get):
             messagebox.showerror("Enter country input error!!","Please enter a country in letters only.")
         else:
+            self.write_log("Starting crawler...")
             myCrawler = crawler.Crawler()
             myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
-    
-    def clear_all(self, job,country,level,amount):
-        job.delete(0,END)
-        country.delete(0,END)
-        level.set("All")
-        amount.delete(0,END)
-
-        #os.system("py ../controller/crawler.py")
-    # def get_job(self):
-    #     job = input_job.get(1.0, "end-1c")
-    #     print(job)
-    # def get_country(self):
-    #     country = input_country.get(1.0, "end-1c")
-    #     print(country)
-    # def get_number(self):
-    #     number = int(input_number.get(1.0, "end-1c"))
-    #     print(number)
-
-
-
+            self.write_log("Finished crawling",self.success_tag)
 
     def pandas_GUI(self, df =''):
+        self.write_log("Opening Pandas Excel File Reader")
         show(df)
 
     def Open_git_Url(self):
+        self.write_log("Opening GitHub page in browser....")
         webbrowser.open_new("https://github.com/rawsashimi1604/1002_LinkedIn")
 
 if __name__ == "__main__":
     window = tk.Tk()
-    window.title("LinkedIn Data Cleaner")
+    window.title("Job Extract")
     window.configure(background='#ADD8E6', pady = "20", padx ="10", height= 600, width=800)
+    jobExtract_logo = PhotoImage(file="../../images/jobExtractLogowindow.png")
+    jobExtract_logo_resized_window = jobExtract_logo.subsample(10,10)
+    window.iconphoto(False, jobExtract_logo)
     myGUI = GUI(window)
     myGUI.startGUI()
     
