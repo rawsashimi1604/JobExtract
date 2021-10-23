@@ -418,12 +418,10 @@ class GUI:
         country_get = (self.country_str.get())
         level_get = (self.seniority_option.get())
         amount_get = (self.number_str.get())
-        if not job_get.isalpha():
+        if not all(c.isalpha() or c.isspace() for c in job_get):
             messagebox.showerror("Enter Job input error!!","Please enter a job in letters only.")
-            job.delete(0,END)
-        elif not country_get.isalpha():
+        elif not all(c.isalpha() or c.isspace() for c in country_get):
             messagebox.showerror("Enter country input error!!","Please enter a country in letters only.")
-            country.delete(0,END)
         else:
             myCrawler = crawler.Crawler()
             myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
