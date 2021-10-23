@@ -14,6 +14,7 @@ import merger
 import counter
 import augmentor
 import processor
+from tkinter import messagebox
 
 
 class GUI:
@@ -413,12 +414,19 @@ class GUI:
         #     print(e)
         
     def startCrawler(self):
-        myCrawler = crawler.Crawler()
         job_get = (self.job_str.get())
         country_get = (self.country_str.get())
         level_get = (self.seniority_option.get())
         amount_get = (self.number_str.get())
-        myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
+        if not job_get.isalpha():
+            messagebox.showerror("Enter Job input error!!","Please enter a job in letters only.")
+            job.delete(0,END)
+        elif not country_get.isalpha():
+            messagebox.showerror("Enter country input error!!","Please enter a country in letters only.")
+            country.delete(0,END)
+        else:
+            myCrawler = crawler.Crawler()
+            myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
     
     def clear_all(self, job,country,level,amount):
         job.delete(0,END)
