@@ -1,3 +1,7 @@
+'''
+    Utility file to help build requirements.txt
+'''
+
 import selenium
 import pandas
 import textblob

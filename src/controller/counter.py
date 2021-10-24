@@ -1,28 +1,71 @@
+from __future__ import annotations
 import pandas as pd
 import numpy as np
 from models.keywordsLook import KeywordsLookModel
 from models.keywords import KeywordsModel
 
+"""
+    Counter Module. Contains Counter Object, used for counting keywords in data, and returning a CSV file containg keywords and count
+"""
 
 class Counter:
-    def __init__(self):
+    '''
+        Counter object, used for counting keywords in data, and returning a CSV file containg keywords and count
+
+        Class Attributes:
+            None
+    '''
+    def __init__(self) -> Counter:
+        '''
+            Constructor for Counter Class.
+            Parameters:
+                None
+            Returns:
+                Counter => Constructs Counter Class
+        '''
         pass
 
-    def updateKeywordsDict(self, keywordsList, description, keywordsDict):
+    def updateKeywordsDict(self, keywordsList: list, description: str, keywordsDict: dict) -> dict:
+        '''
+            Updates dictionary that stores keywords and their count after passing in a description
+            Parameters:
+                keywordsList : list => List of all available keywords to search
+                description : str => Description string to search keywords in
+                keywordsDict : dict => Dictionary to update
+
+            Returns:
+                dict => Returns updated keywords dictionary
+        '''
         description = description.split(" ")
         for word in description:
             if word in keywordsList:
                 keywordsDict[word] = keywordsDict.get(word, 0) + 1
         return keywordsDict
 
-    def getExportLocation(self, dataFilePath):
+    def getExportLocation(self, dataFilePath: str) -> str:
+        '''
+            Get export location and filename to save CSV file to.
+            Parameters:
+                dataFilePath : str => Data file path to search keywords in
+
+            Returns:
+                str => Directory and filename of CSV file
+        '''
         myFile = dataFilePath.split("/")[-1]
         myFile = myFile.replace(".csv", "")
         myFile = "KEYWORDS" + "_" + myFile + ".csv"
 
         return f"../data/keywords/{myFile}"
 
-    def cleanDataframe(self, dataFilePath):
+    def cleanDataframe(self, dataFilePath: str) -> pd.DataFrame:
+        '''
+            Constructs dataframe to store CSV file in
+            Parameters:
+                dataFilePath : str => Data file path to search keywords in
+
+            Returns:
+                pd.DataFrame => Dataframe to store CSV file in
+        '''
         df = pd.read_csv(dataFilePath)
         keywordsLookModel = KeywordsLookModel()
         # Keywords to search
@@ -61,16 +104,35 @@ class Counter:
 
         return myOutputDf
 
-    def exportToCSV(self, dataFilePath):
-        df = self.cleanDataframe(dataFilePath)
-        myDirPath = self.getExportLocation(dataFilePath)
-        df.to_csv(myDirPath, index=False)
+    def saveKeywordObject(self, keywordObject: KeywordsModel, dataframe: pd.DataFrame, index: int) -> None:
+        '''
+            Save keyword object to dataframe's specific index
+            Parameters:
+                keywordObject : KeywordsModel => keywordModel object to save to dataframe
+                dataframe : pd.DataFrame => Dataframe to save to
+                index : int => Index location to store keywordObject in
 
-    def saveKeywordObject(self, keywordObject, dataframe, index):
+            Returns:
+                None
+        '''
         keywordObject.updateValues()
         for i in range(len(keywordObject.parameters)):
             dataframe[keywordObject.parameters[i]
                       ][index] = keywordObject.objectValues[i]
+
+    def exportToCSV(self, dataFilePath) -> None:
+        '''
+            Main function to get keywords from
+            Parameters:
+                dataFilePath : str => Data file path to search keywords in
+
+            Returns:
+                None
+        '''
+        df = self.cleanDataframe(dataFilePath)
+        myDirPath = self.getExportLocation(dataFilePath)
+        df.to_csv(myDirPath, index=False)
+    
 
 
 if __name__ == "__main__":
