@@ -502,7 +502,7 @@ class GUI:
 
     def Open_git_Url(self):
         self.write_log("Opening GitHub page in browser....")
-        webbrowser.open_new("https://github.com/rawsashimi1604/1002_LinkedIn")
+        webbrowser.open_new("https://github.com/rawsashimi1604/JobExtract")
 
 if __name__ == "__main__":
     window = tk.Tk()

@@ -26,4 +26,3 @@ class KeywordsLookModel:
                                      'jurisdiction', 'quality', 'information', 'territory', 'training', 'report', 'tool', 'presentation', 'problem', 'success', 'implement', 'individual', 'engineering', 'order', 'result', 'negotiate', 'specialist', 'deal', 'operation', 'promote', 'study', 'qualification', 'program', 'self', 'execute', 'initiative', 'task', 'win', 'wealth', 'education']
 
         self.allKeywords = self.dependenceKeywords + self.independenceKeywords
-        
