@@ -156,4 +156,3 @@ if __name__ == "__main__":
     # Example usage
     myProcessor = Processor(format="all")
     myProcessor.process()
-

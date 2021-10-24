@@ -76,26 +76,49 @@ This is our project for ICT 1002, where we were tasked to scrape data from Linke
 
 ## Structure
 
-Files are split into 2 folders, src and venv. **DO NOT ADD OR REMOVE FILES IN THE VENV FOLDER!**
+Files are split into 3 folders, src. images and venv. **DO NOT ADD OR REMOVE FILES IN THE VENV FOLDER!** Venv is installed by the user.
 
 ```
-    venv (activate when coding)
+    venv Folder (activate when coding)
       |_ ...
-    images (images)
+    images Folder (images)
       |_ ...
-    src
-      |_ controller (all logic related code)
-          |_ models (data objects)
-      |_ data
-          |_ cleanedData
+    src Folder
+      |_ controller Folder (all logic related code)
+          |_ __init__.py
+          |_ augmentor.py
+          |_ cleaner.py
+          |_ counter.py
+          |_ crawler.py
+          |_ merger.py
+          |_ processor.py
+          |_ models Folder (data objects)
+              |_ __init__.py
+              |_ jobs.py
+              |_ keywords.py
+              |_ keywordsLook.py
+      |_ data Folder
+          |_ augmentedData Folder
+              |_ (augmented data files...)
+          |_ mergedData Folder
+              |_ (merged data files...)
+          |_ cleanedData Folder
               |_ (cleaned data files...)
-          |_ rawData
+          |_ rawData Folder
               |_ (raw data files...)
-          |_ keywords
+          |_ keywords Folder
               |_ (keywords data files...)
-      |_ views (analysis and GUI)
-      |_ misc (misc code, installer)
+      |_ views Folder (analysis and GUI)
+          |_ __init__.py
+          |_ graphicUI.py
+          |_ analysisPlots Folder
+              |_ (plots....)
+          |_ analysisWordCloud Folder
+              |_ word_cloud.py
+      |_ misc Folder (misc code, installer)
     README.md
+    Installation.md
+    Analysis.md
     requirements.txt (used to install modules in venv)
 ```
 
