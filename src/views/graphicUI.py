@@ -467,9 +467,13 @@ class GUI:
         self.chooseDirectory()
         self.write_log("Counting data. Please wait")
         window.update()
-        myCounter = Counter()
-        myCounter.exportToCSV(self.manualFilePath)
-        self.write_log("Successfully counted data. Data saved at " + myCounter.getExportLocation(self.manualFilePath), self.success_tag)
+        try:
+            myCounter = Counter()
+            myCounter.exportToCSV(self.manualFilePath)
+            self.write_log("Successfully counted data. Data saved at " + myCounter.getExportLocation(self.manualFilePath), self.success_tag)
+        except Exception as e:
+            print(e)
+            self.write_log("Error counting file. Please try again.", self.error_tag)
 
     def startCrawler(self):
         job_get = (self.job_str.get())
