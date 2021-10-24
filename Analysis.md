@@ -39,7 +39,7 @@ Seaborn - an open-source software, matplotlib-based Python data visualization li
 
 Word clouds are commonly used to make data more interactive and intuitive. From the word cloud, we can see that “team”, “customer”, “support”, “job”, and “communication” are the top 5 keywords. This is visually visible by the size of the words that immediately catch your attention.
 
-![Wordcloud of popular keywords](./images/WordCloud.PNG)
+![Wordcloud of popular keywords](./images/WordCloud.png)
 
 The bar graph below further illustrates the count for each keyword. This also supports the word cloud data where we can see the word “team” is a commonly used word on LinkedIn. We used this graph to show the scale of each keyword and depict the overall landscape of popular keywords.
 
@@ -49,7 +49,7 @@ The bar graph below further illustrates the count for each keyword. This also su
 
 To check the relationship between independence and dependence ratios, we plotted it using a linear regression plot, with the x and y labels being dependence and independence ratios respectively. From the analysis, we could see that overall, Chinese employers would require more independence and dependence traits from their applicants, and Russian and USA employers would require less. There was also a general upwards relationship between independence and dependence ratios.
 
-![Relationship Regression plot](./images/RatioRelationship.png)
+![Relationship Regression plot](./images/RatioRelationship.PNG)
 
 ## Employment Types
 
