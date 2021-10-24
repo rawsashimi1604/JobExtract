@@ -5,14 +5,14 @@ import sys
 import pandas as pd
 from pandasgui import show
 sys.path.append('../controller')
-import cleaner
 from tkinter import *
 import webbrowser
 import crawler
 import os
-import merger
-import counter
-import augmentor
+from cleaner import Cleaner
+from merger import Merger
+from counter import Counter
+from augmentor import Augmentor
 import processor
 from tkinter import messagebox
 
@@ -33,6 +33,9 @@ class GUI:
         self.background_color = "#ADD8E6"
         self.success_tag = "success"
         self.error_tag = "error"
+        self.manualFilePath = ''
+        self.files = []
+        self.mergedFilePath = ""
 
     def startGUI(self):
         window = self.window
@@ -40,8 +43,7 @@ class GUI:
         self.seniority_option.set("All")
         self.clean_option.set("all")
         jobExtract_logo = PhotoImage(file="../../images/jobExtractLogo.png")
-        jobExtract_logo_resized = jobExtract_logo.subsample(3,3)
-        jobExtract_logo_resized_window = jobExtract_logo.subsample(10,10)
+        jobExtract_logo_resized = jobExtract_logo.subsample(1,1)
         github_logo = PhotoImage(file="../../images/github-logo.png")
         github_logo_resized = github_logo.subsample(30,40)
         frame = tk.Frame(
@@ -78,6 +80,8 @@ class GUI:
         )
         self.log_text = tk.Text(
             log_frame,
+            state=DISABLED,
+            padx=5
         )
         self.log_text.tag_config('black', foreground="black")
         self.log_text.tag_config('success', foreground="green")
@@ -110,6 +114,12 @@ class GUI:
             background = "#cfcfcf",
             command= partial(self.cleanerGUI,frame3)
         )
+        count_button = tk.Button(
+            frame2,
+            text='Count Data',
+            background= "#cfcfcf",
+            command=self.startCounting
+        )
         pandas_button = tk.Button(
             frame2,
             text='Open Pandas Excel File Reader',
@@ -122,16 +132,12 @@ class GUI:
         greeting.pack(side='top',pady=10)
         crawl_button.pack(side='left',padx=10,pady=5)
         clean_button.pack(side='left',padx=10,pady=5)
+        count_button.pack(side='left',padx=10,pady=5)
         pandas_button.pack(side='left',padx=10,pady=5)
         github_button.pack(side='left',padx=10,pady=5)
-        # Merge_button.pack(side='left',padx=10,pady=5)
-        # count_button.pack(side='left',padx=10,pady=5)
-        # augment_button.pack(side='left',padx=10,pady=5)
-        # clear_button.pack(side='left',padx=10,pady=5)
         canvas.pack(side="left", fill="both", expand=True)
         self.log_text.pack(side='top')
         scrollbar.pack(side="right", fill="y")
-        # startCrawling = partial(self.startCrawler,job_str,country_str,option,number_str)
         window.mainloop()
 
     def crawlerGUI(self,parent_frame):
@@ -320,7 +326,7 @@ class GUI:
             clean_button = tk.Button(
                 self.cleaner_frame,
                 text="Clean file",
-                command=self.startCleaner
+                command=self.cleanFiles
             )
             self.cleaner_frame.pack(side='left')
             lbl_processing_mode.grid(row=0,column=0,sticky='W')
@@ -344,45 +350,126 @@ class GUI:
             args[0].config(state="disabled")
 
     def write_log(self,text, tag='black'):
-        self.log_text.insert(INSERT,text+"\n",tag)
+        self.log_text.configure(state=NORMAL)
+        if self.log_text.get("1.0","end-2c") == "":
+            self.log_text.insert(INSERT,text,tag)
+        else:
+            self.log_text.insert(END,"\n"+text,tag)
+        self.log_text.configure(state=DISABLED)
+
 
     def chooseDirectory(self):
         cwd = getcwd()
         filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
-        return filename
+        self.manualFilePath = filename
 
-    def startMerging(self):
-        filename = self.chooseDirectory()
-        myMerger = merger.Merger()
-        merge_all = myMerger.merging_all_files(*filename)
-        myMerger.createNewFile(merge_all,"New_Merge_file")
-    
-    def startCounting(self):
-        filename = self.chooseDirectory()
-        myCounter = counter.Counter()
-        myCounter.exportToCSV(filename)
+    def cleanFiles(self) -> None:
+        '''
+            Cleans all files according to specified format attribute, adds cleaned files into class attributes to be accessed by other functions.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
+        self.write_log(f"Format selected is {self.clean_option.get()}. Cleaning will begin now...")
+        window.update()
 
-    def startAugmenting(self):
-        filename = self.chooseDirectory()
-        myAugmentor = augmentor.Augmentor(filename)
-        myAugmentor.augment()
+        myCleaner = Cleaner()
 
-    def startCleaner(self):
-        clean_option = self.clean_option.get()
-        if clean_option == "single":
-            filename = ''
-            filename = self.chooseDirectory()
-            self.write_log("Cleaning " + filename + ". Please wait...")
-            myProcessor = processor.Processor(format=clean_option,manualFilePath=filename)
-            self.write_log(filename + " successfully cleaned", self.success_tag)
-        else:
-            if clean_option == "all":
-                self.writelog("Cleaning all files. Please wait...")
+        # Get all files to clean
+        searchPath = "../data/rawData"
+        countries = os.listdir(searchPath)
+        positions = ["Associate", "Director", "Entry", "Internship", "Mid-Senior"]
+
+        if self.clean_option.get()== "single":
+            self.chooseDirectory()
+            if self.manualFilePath:
+                self.manualFilePath = self.manualFilePath.encode('unicode_escape')
+                self.files.append(self.manualFilePath)
+                myCleaner.startCleaner(self.manualFilePath)
+                newPath = self.manualFilePath.replace("rawData", "cleanedData")
+                self.write_log(f"Cleaned {self.manualFilePath}\nCleaning successful.\nCleaned Data saved @ \n{newPath}\n",self.success_tag)
+                window.update()
+                self.files.append(newPath)
             else:
-                self.writelog("Cleaning all latest files. Please wait...")
-            myProcessor  = processor.Processor(format=clean_option)
-            self.write_log("Files successfully cleaned", self.success_tag)
-        myProcessor.process()
+                self.write_log(f"Error when cleaning file. Please try again.", self.error_tag)
+                raise ValueError("manualFilePath attribute cannot be empty when selecting single format")
+        
+        for country in countries:
+            for position in positions:
+                currPath = fr"{searchPath}/{country}/{position}"
+                currPathFiles = os.listdir(currPath)
+                if self.clean_option.get() == "all":
+                    if len(currPathFiles) != 0:
+                        for file in currPathFiles:
+                            filePath = fr"{currPath}/{file}"
+                            myCleaner.startCleaner(filePath)
+                            newPath = filePath.replace("rawData", "cleanedData")
+                            self.write_log(f"Cleaned {file} @ \n{filePath}\nCleaning successful.\nCleaned Data saved @ \n{newPath}\n",self.success_tag)
+                            window.update()
+                            self.files.append(newPath)
+
+                elif self.clean_option.get() == "latestAll":
+                    if len(currPathFiles) != 0:
+                        # Get latest file
+                        file = currPathFiles[-1]
+                        filePath = fr"{currPath}/{file}"
+                        newPath = filePath.replace("rawData", "cleanedData")
+                        myCleaner.startCleaner(filePath)
+                        self.write_log(f"Cleaned {file} @ \n{filePath}\nCleaning successful.\nCleaned Data saved @ \n{newPath}\n",self.success_tag)
+                        window.update()
+                        self.files.append(newPath)
+
+                elif self.clean_option.get() == "single":
+                    pass
+
+                else: 
+                    self.write_log("Error when cleaning file. Please try again.", self.error_tag)
+                    raise ValueError("Please enter a correct format value")
+
+        self.write_log("Cleaning has ended...")
+
+    def mergeFiles(self) -> None:
+        '''
+            Merges all files according to specified format attribute, adds merged file path into class attributes to be accessed by other functions.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
+        myMerger = Merger()
+        self.write_log("Merging in progress...")
+        window.update()
+        mergedDf = myMerger.merging_all_files(*self.files)
+        mergedFileName = fr"{self.dateTime()}_MERGED"
+        myMerger.createNewFile(mergedDf, mergedFileName)
+        self.mergedFilePath = fr"../data/mergedData/{mergedFileName}.csv"
+        self.write_log(f"Successfully merged file @\n{self.mergedFilePath}",self.success_tag)
+        window.update()
+    
+    def augmentFile(self) -> None:
+        '''
+            Augments merged file.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
+        self.write_log("Augmenting in progress...")
+        window.update()
+        myAugmentor = Augmentor(self.mergedFilePath)
+        augmentedFilePath = self.mergedFilePath.replace("mergedData", "augmentedData").replace("MERGED", "AUGMENTED")
+        myAugmentor.augment()
+        self.write_log(f"Successfully augmented file @\n{augmentedFilePath}\n",self.success_tag)
+        window.update()
+
+    def startCounting(self):
+        self.chooseDirectory()
+        self.write_log("Counting data. Please wait")
+        window.update()
+        myCounter = Counter()
+        myCounter.exportToCSV(self.manualFilePath)
+        self.write_log("Successfully counted data. Data saved at " + myCounter.getExportLocation(self.manualFilePath), self.success_tag)
 
     def startCrawler(self):
         job_get = (self.job_str.get())
@@ -394,13 +481,19 @@ class GUI:
         elif not all(c.isalpha() or c.isspace() for c in country_get):
             messagebox.showerror("Enter country input error!!","Please enter a country in letters only.")
         else:
-            self.write_log("Starting crawler...")
-            myCrawler = crawler.Crawler()
-            myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
-            self.write_log("Finished crawling",self.success_tag)
+            try:
+                self.write_log("Starting crawler...")
+                window.update()
+                myCrawler = crawler.Crawler()
+                myCrawler.startCrawler(job_get, country_get, level_get, int(amount_get))
+                self.write_log("Finished crawling",self.success_tag)
+            except Exception as e:
+                print(e)
+                self.write_log("Error when crawling. Please try again.", self.error_tag)
 
     def pandas_GUI(self, df =''):
         self.write_log("Opening Pandas Excel File Reader")
+        window.update()
         show(df)
 
     def Open_git_Url(self):
@@ -410,7 +503,7 @@ class GUI:
 if __name__ == "__main__":
     window = tk.Tk()
     window.title("Job Extract")
-    window.configure(background='#ADD8E6', pady = "20", padx ="10", height= 600, width=800)
+    window.configure(background='#ADD8E6', pady = "20", padx ="10", height= 900, width=800)
     jobExtract_logo = PhotoImage(file="../../images/jobExtractLogowindow.png")
     jobExtract_logo_resized_window = jobExtract_logo.subsample(10,10)
     window.iconphoto(False, jobExtract_logo)
