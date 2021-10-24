@@ -50,7 +50,7 @@ Users are able to crawl data, clean data, as well as open an interactive excel r
 
 ### Analysis
 
-- Detailed analysis can be found [here](./analysis.md)
+- Detailed analysis can be found [here](./Analysis.md)
 
 ## Installation
 
