@@ -263,7 +263,7 @@ class GUI:
             self.job_str.trace_add("write", partial(self.validate_crawl, startCrawl_button))
             self.country_str.trace_add("write", partial(self.validate_crawl, startCrawl_button))
             lbljobs.grid(row=0,column=0,sticky="W")
-            input_job.grid(row=0,column=1,padx=(0,15),columnspan=3,sticky="W")
+            input_job.grid(row=0,column=1,padx=(0,15),columnspan=2,sticky="W")
             lblcountry.grid(row=0,column=3,padx=(15,0))
             input_country.grid(row=0,column=4,columnspan=3)
             lbllevel.grid(row=1,column=0,sticky='W')
@@ -275,7 +275,7 @@ class GUI:
             rb_mid_senior.grid(row=2,column=2,sticky='W')
             lblnumber.grid(row=3,column=0,sticky='W',columnspan=2)
             entry_number.grid(row=3,column=2,sticky='EW',padx=5)
-            input_number.grid(row=3,column=3,sticky="EW", columnspan=4)
+            input_number.grid(row=3,column=3,sticky="EW", columnspan=3)
             startCrawl_button.grid(row=4,column=0, columnspan=8,pady=(10,0))
             
     def cleanerGUI(self,parent_frame):
