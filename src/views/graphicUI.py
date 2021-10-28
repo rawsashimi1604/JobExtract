@@ -13,19 +13,49 @@ from cleaner import Cleaner
 from merger import Merger
 from counter import Counter
 from augmentor import Augmentor
-import processor
 from tkinter import messagebox
 
-
+"""
+    GUI Module. Contains the GUI Object to display the Graphical User Interface that integrates all the functionalities
+    of the program and allows the users to access it all in one place
+"""
 class GUI:
+    '''
+        GUI Object
+
+        Class Attributes:
+            window: tk.Tk() => The window in which the GUI is built on
+            log_text: tk.Text() => The text object which will be displayed in the log. Can be modified with 
+            seniortity_option: StringVar() => The seniority value that to be inputted into the crawler
+            job_str: StringVar() => The job string to be inputted into the crawler
+            number_str: StringVar() => The number of jobs to be crawled by the crawler
+            clean_option: StringVar() => The clean option to be inputted into the cleaner
+            crawler_frame: tk.Frame() => The frame containing the crawler input options
+            cleaner_frame: tk.Frame() => The frame containing the cleaner input options
+            crawler_open: bool => Boolean value dictating whether the crawler options is to be displayed
+            cleaner_open: bool => Boolean value dictating whether the cleaner options is to be displayed
+            background_color: str => String value of a hex color to define what the background color is for all elements in the GUI
+            success_tag: str => String value to be passed into the write_log function to display a green text
+            error_tag: str => String value to be passed into the write_log function to display a red text
+            manualFilePath: str => Specifies path for "single" format processing.
+            files: List => List of files to be processed
+            mergedFilepath: str => Specifies path for augmenting.
+    '''
     def __init__(self, window):
+        ''' 
+            Constructor for GUI Class.
+            Parameters:
+                window: tk.Tk() => Defines the tkinter window to display the GUI in
+            Returns:
+                GUI => Constructs GUI Class
+        '''
         self.window = window
         self.log_text = tk.Text()
         self.seniority_option = StringVar()
-        self.clean_option = StringVar()
         self.job_str = StringVar()
         self.country_str = StringVar()
         self.number_str = StringVar()
+        self.clean_option = StringVar()
         self.crawler_frame = tk.Frame()
         self.cleaner_frame = tk.Frame()
         self.crawler_open = False
@@ -38,6 +68,13 @@ class GUI:
         self.mergedFilePath = ""
 
     def startGUI(self):
+        '''
+            Start the GUI and display all the main page elements.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
         window = self.window
         background_color = self.background_color
         self.seniority_option.set("All")
@@ -141,6 +178,13 @@ class GUI:
         window.mainloop()
 
     def crawlerGUI(self,parent_frame):
+        '''
+            Display the crawler GUI to collect the parameters to be passed to the startCrawler function.
+            Parameters:
+                parent_frame: tk.Frame() => The parent frame where the crawler GUI is to be displayed
+            Returns:
+                None
+        '''
         if self.crawler_open:
             self.crawler_open = False
             parent_frame.configure(height=0)
@@ -279,6 +323,13 @@ class GUI:
             startCrawl_button.grid(row=4,column=0, columnspan=8,pady=(10,0))
             
     def cleanerGUI(self,parent_frame):
+        '''
+            Display the cleaner GUI to collect the parameters to be passed to the startCleaner function.
+            Parameters:
+                parent_frame: tk.Frame() => The parent frame where the crawler GUI is to be displayed
+            Returns:
+                None
+        '''
         if self.cleaner_open:
             self.cleaner_open = False
             parent_frame.configure(height=0)
@@ -336,9 +387,23 @@ class GUI:
             clean_button.grid(row=4,column=0, sticky='W')
 
     def destroy_frame(self,frame):
+        '''
+            Destroy the frame passed into it.
+            Parameters:
+                frame: tk.Frame() => The Tkinter frame to be destroyed
+            Returns:
+                None
+        '''
         frame.destroy()            
 
     def validate_crawl(self,*args):
+        '''
+            Function to validate the crawler input boxes, and disable the start crawl button accordingly
+            Parameters:
+                *args: List => List of objects passed by the listener attached to the input boxes of the crawler GUI
+            Returns:
+                None
+        '''
         job_str = self.job_str.get()
         country_str = self.country_str.get()
         if job_str:
@@ -350,6 +415,14 @@ class GUI:
             args[0].config(state="disabled")
 
     def write_log(self,text, tag='black'):
+        '''
+            Function to write text into the log canvas.
+            Parameters:
+                text: str => Text to be displayed in the logs
+                tag: str (Optional) => Tag attached to it. ("Success" = green text, "Error" = red text, default is black text)
+            Returns:
+                None
+        '''
         self.log_text.configure(state=NORMAL)
         if self.log_text.get("1.0","end-2c") == "":
             self.log_text.insert(INSERT,text,tag)
@@ -357,9 +430,14 @@ class GUI:
             self.log_text.insert(END,"\n"+text,tag)
         self.log_text.configure(state=DISABLED)
 
-
     def chooseDirectory(self):
-        cwd = getcwd()
+        '''
+            Open the file dialog for the user to choose the data file and updates the manualFilePath variable
+            Parameters:
+                None:
+            Returns:
+                None
+        '''
         filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
         self.manualFilePath = filename
 
@@ -464,6 +542,13 @@ class GUI:
         window.update()
 
     def startCounting(self):
+        '''
+            Starts the counting process on the data file
+            Parameters:
+                None
+            Returns:
+                None
+        '''
         self.chooseDirectory()
         self.write_log("Counting data. Please wait")
         window.update()
@@ -476,6 +561,13 @@ class GUI:
             self.write_log("Error counting file. Please try again.", self.error_tag)
 
     def startCrawler(self):
+        '''
+            Starts the crawling process with the input variables from crawler GUI
+            Parameters:
+                None
+            Returns:
+                None
+        '''
         job_get = (self.job_str.get())
         country_get = (self.country_str.get())
         level_get = (self.seniority_option.get())
@@ -496,11 +588,25 @@ class GUI:
                 self.write_log("Error when crawling. Please try again.", self.error_tag)
 
     def pandas_GUI(self, df =''):
+        '''
+            Opens the PandasGUI with the dataframe provided. If called with no parameters, open PandasGUI without a dataframe
+            Parameters:
+                df: pandas.DataFrame (optional) => The pandas DataFrame to be displayed
+            Returns:
+                None
+        '''
         self.write_log("Opening Pandas Excel File Reader")
         window.update()
         show(df)
 
     def Open_git_Url(self):
+        '''
+            Opens the github website in a browser
+            Parameters:
+                None
+            Returns:
+                None
+        '''
         self.write_log("Opening GitHub page in browser....")
         webbrowser.open_new("https://github.com/rawsashimi1604/JobExtract")
 
@@ -513,4 +619,3 @@ if __name__ == "__main__":
     window.iconphoto(False, jobExtract_logo)
     myGUI = GUI(window)
     myGUI.startGUI()
-    
