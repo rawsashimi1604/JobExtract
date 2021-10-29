@@ -306,5 +306,5 @@ class Cleaner:
 
 if __name__ == "__main__":
     myCleaner = Cleaner()
-    myDataFile = r"../data/rawData/USA/Mid-Senior/2021_10_09_14_59_Sales_dataFile.csv"
+    myDataFile = r"../data/rawData/Singapore/Internship/2021_10_28_14_17_Sales_dataFile.csv"
     myCleaner.startCleaner(myDataFile)

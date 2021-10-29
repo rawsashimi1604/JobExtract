@@ -95,3 +95,4 @@ class Augmentor:
 if __name__ == "__main__":
     myAugmentor = Augmentor("../data/mergedData/AllCountries_All_Data.csv")
     myAugmentor.augment()
+

@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+    Analysis Plot 4 -> Regression plot for dependence and independence ratio
+'''
+
 def countValues(dataframe, countParameter, filterParameter, columnName):
     '''
         Counts total value of dataframe after filtering

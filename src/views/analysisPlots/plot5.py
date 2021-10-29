@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+    Analysis Plot 5 -> Relationship between Location and Keywords
+'''
+
 def countValues(dataframe, countParameter, filterParameter, columnName):
     '''
         Counts total value of dataframe after filtering
@@ -89,9 +93,6 @@ def constructDataset():
 
 # Dataset (Plot 4)
 df = pd.read_csv("../../data/augmentedData/AllCountries_All_Data.csv")
-# sns.boxplot(x="seniorityLevel", y="independenceRatio", data=df, order=["Internship", "Entry level", "Associate", "Mid-Senior level", "Director"])
-# sns.boxplot(x="location", y="independenceRatio", data=df, order=["Singapore", "USA", "China" , "Russia"])
-# sns.boxplot(x="employmentType", y="independenceRatio", data=df)
 
 sns.barplot(y="location", x="dependenceRatio", data=df, estimator=np.mean)
 plt.title("Relationship between Location and Dependence Keywords")
