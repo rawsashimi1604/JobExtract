@@ -102,7 +102,7 @@ class Crawler:
                     "Director"
                 count : int => Number of jobs to search (maximum 1000)
             Returns:
-                str => Formatted string containing date and time.
+                None
         '''
 
         if seniorityLevel not in self.positionsAvailable:
