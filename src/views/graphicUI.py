@@ -4,6 +4,7 @@ from functools import partial
 import sys
 import pandas as pd
 from pandasgui import show
+from datetime import datetime
 sys.path.append('../controller')
 from tkinter import *
 import webbrowser
@@ -377,7 +378,7 @@ class GUI:
             clean_button = tk.Button(
                 self.cleaner_frame,
                 text="Clean file",
-                command=self.cleanFiles
+                command=self.processFiles
             )
             self.cleaner_frame.pack(side='left')
             lbl_processing_mode.grid(row=0,column=0,sticky='W')
@@ -438,8 +439,36 @@ class GUI:
             Returns:
                 None
         '''
+        cwd = os.getcwd
         filename = tk.filedialog.askopenfile(initialdir=cwd, title="Select Data File", filetypes=(("CSV files","*.csv"),("all files","*.*"))).name
         self.manualFilePath = filename
+
+    def processFiles(self) -> None:
+        '''
+            Main function, cleans files according to format class attribute, merges them together, then augments data points, saving it to a new file.
+            Parameters:
+                None
+            Returns:
+                None
+        '''
+        self.cleanFiles()
+        self.mergeFiles()
+        self.augmentFile()
+        self.write_log("Cleaning has ended.")
+    
+    @staticmethod
+    def dateTime() -> str:
+        '''
+            Returns today's date and time
+            Parameters:
+                None
+            Returns:
+                str => Formatted string containing date and time.
+        '''
+        now = datetime.now()
+        datetime_string = now.strftime("%Y_%m_%d_%H_%M")
+
+        return datetime_string
 
     def cleanFiles(self) -> None:
         '''
@@ -453,7 +482,7 @@ class GUI:
         window.update()
 
         myCleaner = Cleaner()
-
+        
         # Get all files to clean
         searchPath = "../data/rawData"
         countries = os.listdir(searchPath)
@@ -462,7 +491,7 @@ class GUI:
         if self.clean_option.get()== "single":
             self.chooseDirectory()
             if self.manualFilePath:
-                self.manualFilePath = self.manualFilePath.encode('unicode_escape')
+                # self.manualFilePath = self.manualFilePath.encode('unicode_escape')
                 self.files.append(self.manualFilePath)
                 myCleaner.startCleaner(self.manualFilePath)
                 newPath = self.manualFilePath.replace("rawData", "cleanedData")
@@ -504,8 +533,6 @@ class GUI:
                 else: 
                     self.write_log("Error when cleaning file. Please try again.", self.error_tag)
                     raise ValueError("Please enter a correct format value")
-
-        self.write_log("Cleaning has ended...")
 
     def mergeFiles(self) -> None:
         '''
