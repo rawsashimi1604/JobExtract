@@ -4,8 +4,10 @@ import numpy as np
 from wordcloud import (WordCloud, get_single_color_func)
 from PIL import Image
 import matplotlib.pyplot as plt
-# % matplotlib inline
 
+'''
+    WordCloud Image
+'''
 
 # Dataset (WordCloud)
 datasetDataframe = pd.read_csv("../../data/keywords/KEYWORDS_AllCountries_All_Data.csv")
@@ -20,7 +22,6 @@ df_type = datasetDataframe.get(key='type_').tolist()
 
 
 df_dict = dict(zip(df_keyword,df_count))
-# print(df_dict)
 
 wordcloud = WordCloud(background_color='white',
                       width=1500,

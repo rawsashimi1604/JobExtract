@@ -4,6 +4,9 @@ import numpy as np
 from numpy import median
 import matplotlib.pyplot as plt
 
+'''
+    Analysis Plot 1 -> Dataset Based on Job Seniority Level
+'''
 
 def countValues(dataframe, countParameter, filterParameter, columnName):
     '''

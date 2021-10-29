@@ -3,6 +3,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+'''
+    Analysis Plot 6 -> Relationship between Seniority Level and Keywords
+'''
+
 def countValues(dataframe, countParameter, filterParameter, columnName):
     '''
         Counts total value of dataframe after filtering

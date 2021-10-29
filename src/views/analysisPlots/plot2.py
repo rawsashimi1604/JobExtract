@@ -3,11 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Dataset (Plot 3)
+'''
+    Analysis Plot 2 -> Total Count for Each Keyword
+'''
+
 datasetDataframe = pd.read_csv("../../data/keywords/KEYWORDS_AllCountries_All_Data.csv")
 
 sns.set_theme(style="whitegrid")
-# print(datasetDataframe)
 datasetDataframe.rename(columns={'count':'keywordCount'}, inplace=True)
 # SORTED 
 plot3 = sns.barplot(x=(datasetDataframe.keyword),
