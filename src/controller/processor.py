@@ -14,6 +14,13 @@ import os
 class Processor:
     """
         Processor Object, used for processing raw data into processed data.
+        Class Attributes:
+            format: str => Defines which files are to be processed.
+            Available Parameters:
+                "all" => Processes all files in all rawData directories,
+                "latestAll" => Processes latest files in all rawData directories
+                "single" => Processes single file, manualFilePath attribute needed
+            manualFilePath: str (Optional) => Specifies path for "single" format processing.
     """
     def __init__(self, format: str, manualFilePath: Optional[str]=None) -> Processor:
         '''
@@ -153,6 +160,5 @@ class Processor:
         self.augmentFile()
 
 if __name__ == "__main__":
-    # Example usage
     myProcessor = Processor(format="all")
     myProcessor.process()

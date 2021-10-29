@@ -50,4 +50,13 @@
   git merge origin/production
 ```
 
-- To install compelte NLTK Library required for data cleaning, run `nltk.download()`.
+- To install complete NLTK Library required for data cleaning, open up a new python file and run the following code:
+
+```python
+import nltk
+nltk.download()
+```
+
+This should open up a new window and select *“all”* and click on the button *Download* to download the dataset.
+
+![NLTK Installation](./images/NLTKInstallation.png)
