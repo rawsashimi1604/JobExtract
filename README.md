@@ -29,6 +29,8 @@ The objective of this project is to identify competencies that employers are loo
 
 ### User Guide
 
+View the detailed user guide [here](./UserGuide.md). <br/>
+
 Users are able to crawl data, clean data, as well as open an interactive excel reader using the GUI.
 
 - To crawl data, input the job, country, seniority level and number of data to be crawled. Do note that the maximum data to crawl is 1000.
